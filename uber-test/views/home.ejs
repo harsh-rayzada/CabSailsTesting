@@ -1,0 +1,9 @@
+<div>
+	Hi, You are now logged in to your uber account
+</div>
+<script type="text/javascript">
+	<%if(accessToken){%>
+	    Uber.saveToken(<%-JSON.stringify(accessToken)%>);
+	    Uber.saveRefreshToken(<%-JSON.stringify(refreshToken)%>)
+    <%}%>
+</script>

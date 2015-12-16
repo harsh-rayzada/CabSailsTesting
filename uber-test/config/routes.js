@@ -36,7 +36,7 @@ module.exports.routes = {
     view: 'homepage'
   },
 
-  'GET /uberAuth' : 'UberController.getCode'
+  'GET /user/pickupLogin' : 'UberController.loginPickup'
 
   /***************************************************************************
   *                                                                          *
