@@ -4,7 +4,6 @@
  * @description :: Server-side logic for managing Ubers
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
-var Client = require('node-rest-client').Client;
 module.exports = {
 	loginPickup: function(req, res){
 	    if(req.param('code')){
