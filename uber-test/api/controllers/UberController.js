@@ -13,6 +13,7 @@ module.exports = {
 	          res.status(500).json(JSON.parse(err));
 	        }else{
 	          var response = JSON.parse(body);
+	          sails.log.debug(response);
 	          res.view('home',{accessToken: response.access_token, refreshToken: response.refresh_token});
 	        }
 	      });
