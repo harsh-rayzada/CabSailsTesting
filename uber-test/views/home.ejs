@@ -1,6 +1,22 @@
 <div>
 	Hi, You are now logged in to your uber account
 </div>
+<form action="/user/pickup" method="POST">
+	<input type="hidden" value="Harsh Rayzada" name="userName"/>
+	<input type="hidden" value="9620469791" name="userNum"/>
+	<input type="hidden" value="Lionel Messi" name="recieverName"/>
+	<input type="hidden" value="139" name="recieverNum"/>
+	<input type="hidden" value="<%=accessToken%>" name="userToken"/>
+	<input type="hidden" value="<%=refreshToken%>" name="refreshToken"/>
+	<input type="hidden" value="false" name="smartFlag">
+	<input type="hidden" value="false" name="appFlag">
+	<input type="hidden" value="db6779d6-d8da-479f-8ac7-8068f4dade6f" name="productId">
+	<input type="hidden" value="13.022123" name="pickupLatitude"/>
+	<input type="hidden" value="77.649609" name="pickupLongitude"/>
+	<input type="hidden" value="13.079387" name="destLatitude"/>
+	<input type="hidden" value="77.515546" name="destLongitude">
+	<input type="submit" value="Order ride"/>
+</form>
 <script type="text/javascript">
 	<%if(accessToken){%>
 	    Uber.saveToken(<%-JSON.stringify(accessToken)%>);

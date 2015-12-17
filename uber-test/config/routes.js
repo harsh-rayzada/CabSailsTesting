@@ -32,11 +32,18 @@ module.exports.routes = {
   *                                                                          *
   ***************************************************************************/
 
-  '/': {
-    view: 'homepage'
+  'GET /user/pickupLogin' : 'UberController.loginPickup',
+  'POST /user/pickup'     : 'UberController.options',
+
+  '/user/location':{
+      view: 'location'
   },
 
-  'GET /user/pickupLogin' : 'UberController.loginPickup'
+  '/': {
+      view: 'homepage'
+  },
+
+
 
   /***************************************************************************
   *                                                                          *

@@ -1,0 +1,38 @@
+<div id="searching">
+	Searching for a driver...
+</div>
+<div id="found">
+	Driver details here
+</div>
+<script type="text/javascript">
+	var requestData = <%-JSON.stringify(rideDetails)%>;
+	var interval = setTimeout(checkStatus, 1500);
+	function checkStatus(){
+		$.ajax({
+			url:"https://sandbox-api.uber.com/v1/requests/"+requestData.request_id,
+			type: 'GET',
+			headers: {
+				'Authorization': 'Bearer '+requestData.userToken,
+				'Access-Control-Allow-Headers' :'Authorization',
+				'Access-Control-Allow-Methods' :'GET',
+				'Access-Control-Allow-Origin':'http://localhost:2244',
+				'Access-Control-Allow-Credentials': 'true'
+			},
+			crossDomain: true,
+			xhrFields: {
+				withCredentials: true
+  			},
+  			async: true,
+  			// dataType: 'jsonp',
+  			success:function(resp){
+				if(resp.status == 'accepted'){
+					clearInterval(interval);
+					alert('ride confirmed');
+				}else{
+					console.log('still waiting');
+					alert('waiting');
+				}
+			}
+		});
+	}
+</script>

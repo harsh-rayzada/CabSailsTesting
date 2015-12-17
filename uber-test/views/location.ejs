@@ -1,0 +1,36 @@
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<div>
+	<p>Welcome user!</p>
+	<label for="lat">your Latitude: </label><p id="lat"></p>
+	<label for="long">you Longitude: </label><p id="long"></p>
+	<button onclick="showLocation()">Click</button>
+	<div id="map" style="width:300px;height:300px;"></div>
+<script type="text/javascript">
+var latitude = document.getElementById('lat');
+var longitude = document.getElementById('long');
+function showLocation(){
+	if(navigator.geolocation){
+		navigator.geolocation.getCurrentPosition(showPosition);
+	}else{
+		alert('doesnt support location');
+	}
+}
+function showPosition(position){
+	latitude.innerHTML = position.coords.latitude;
+	longitude.innerHTML = position.coords.longitude;
+	createMap(position.coords.latitude, position.coords.longitude);
+}
+function createMap(lat, long){
+	var userCenter = new google.maps.LatLng(lat, long);
+	var mapProp = {
+		center: userCenter,
+		zoom: 16,
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	var userMap=new google.maps.Map(document.getElementById("map"), mapProp);
+	var marker = new google.maps.Marker({
+		position: userCenter
+	});
+	marker.setMap(userMap);
+}
+</script>
