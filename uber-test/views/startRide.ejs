@@ -4,7 +4,10 @@
 	<div class="map-details" id="mapDetails">
 		<div class="map-header">
 			<p class="current-loc-head">Set your pickup location</p>
-			<p id="currentAddress">Getting your location...</p>
+			<div class="location-pickup" id="locationPickup">
+				<p id="currentAddress">Getting your location</p>
+				<img src="http://preloaders.net/preloaders/712/Floating%20rays.gif" id="loader"/>
+			</div>
 		</div>
 	</div>
 	<div class="ride-alert-box" id="rideAlert">
@@ -45,9 +48,20 @@
 	<div class="overlay hide"></div>
 </div>
 <div class="searching-msg hide">
-	Requesting the nearest cab...
+	<span id="searchMsg">Requesting the nearest cab </span><img src="http://preloaders.net/preloaders/712/Floating%20rays.gif"/>
 </div>
 <style>
+	.searching-msg span, .searching-msg img{
+		vertical-align: middle;
+	}
+
+	.location-pickup p, .location-pickup img{
+	    display: inline-block;
+	    vertical-align: middle;
+	}
+	.location-pickup img, .searching-msg img{
+		width: 5%;
+	}
 	.parent-container{
 		font-size: 14px;
 	}
@@ -166,6 +180,9 @@
     		if (status === google.maps.GeocoderStatus.OK) {
 				if (results[1]) {
 					document.getElementById('currentAddress').innerHTML = results[0].formatted_address;
+					var parent = document.getElementById('locationPickup');
+					var child = document.getElementById('loader');
+					parent.removeChild(child);
 					pickupLat = position.coords.latitude;
 					pickupLong = position.coords.longitude;
 					createMap(pickupLat, pickupLong);

@@ -20,7 +20,7 @@ $('#acceptRide').click(function(e){
 		// processData: false,
 		data: rideData,
 		success:function(resp){
-			$('.searching-msg').text('Waiting for a driver to accept...');
+			$('#searchMsg').text('Waiting for a driver to accept ');
 			requestId = resp.request_id;
 			interval = setInterval(checkStatus, 5000);
 		},
@@ -76,7 +76,7 @@ $('.product').click(function(e){
 		// 	url: '/user/rideLink',
 		// 	type: 'POST',
 		// 	data: {
-				
+
 		// 	},
 		// 	success: function(resp){
 		// 		console.log(resp);
