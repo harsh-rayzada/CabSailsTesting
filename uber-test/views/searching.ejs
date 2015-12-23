@@ -1,38 +1,40 @@
+<script src="http://maps.googleapis.com/maps/api/js"></script>
 <div id="searching">
 	Searching for a driver...
 </div>
-<div id="found">
-	Driver details here
-</div>
+<div id="map" style="width:300px;height:300px;"></div>
 <script type="text/javascript">
 	var requestData = <%-JSON.stringify(rideDetails)%>;
-	var interval = setTimeout(checkStatus, 1500);
+	var interval = setInterval(checkStatus, 3000);
 	function checkStatus(){
 		$.ajax({
 			url:"https://sandbox-api.uber.com/v1/requests/"+requestData.request_id,
 			type: 'GET',
 			headers: {
-				'Authorization': 'Bearer '+requestData.userToken,
-				'Access-Control-Allow-Headers' :'Authorization',
-				'Access-Control-Allow-Methods' :'GET',
-				'Access-Control-Allow-Origin':'http://localhost:2244',
-				'Access-Control-Allow-Credentials': 'true'
+				'Authorization': 'Bearer '+requestData.userToken
 			},
-			crossDomain: true,
-			xhrFields: {
-				withCredentials: true
-  			},
-  			async: true,
-  			// dataType: 'jsonp',
   			success:function(resp){
 				if(resp.status == 'accepted'){
 					clearInterval(interval);
-					alert('ride confirmed');
-				}else{
-					console.log('still waiting');
-					alert('waiting');
+					document.getElementById('searching').innerHTML = "Driver found! Ride booking successful";
+					document.getElementById('img').innerHTML = resp.vehicle.picture_url;
+					createMap(resp.location.latitude, resp.location.longitude, resp.vehicle.picture_url);
 				}
 			}
 		});
+	}
+	function createMap(lat, long, carImage){
+		var userCenter = new google.maps.LatLng(lat, long);
+		var mapProp = {
+			center: userCenter,
+			zoom: 16,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		var userMap=new google.maps.Map(document.getElementById("map"), mapProp);
+		var marker = new google.maps.Marker({
+			position: userCenter
+			// icon: carImage
+		});
+		marker.setMap(userMap);
 	}
 </script>

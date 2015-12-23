@@ -1,0 +1,213 @@
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<div class="parent-container">
+	<div id="map"></div>
+	<div class="map-details" id="mapDetails">
+		<div class="map-header">
+			<p class="current-loc-head">Set your pickup location</p>
+			<p id="currentAddress">Getting your location...</p>
+		</div>
+	</div>
+	<div class="ride-alert-box" id="rideAlert">
+		<div class="alert-data">
+			<div class="alert-heading"><p><%=user.name%> is requesting to drop you.</p></div>
+			<div class="ride-info">
+				<div class="ride-estimate">
+					<p>Kindly reply in <b><%=(user.linkExpiry)/60000%> minutes</b></p>
+				</div>
+				<div class="ride-cost">
+					<p>Cost to you - <b>Free!</b></p>
+				</div>
+				<div class="ride-dest">
+					<p>Destination: <b><%=user.destination%></b></p>
+				</div>
+			</div>
+			<div class="accept-ride" id="acceptRide">
+				Accept
+			</div>
+		</div>
+	</div>
+	<div class="ride-alert-box hide" id="rideConfirm">
+		<div class="ride-data">
+			<div class="ride-left">
+				<p><b><span id="driverName"></span>(<span id="rating"></span> stars</b>) - <span id="phNum"></span></p>
+				<p>Car - <b><span id="carDetails"></span></b></p>
+				<p>Car Plate - <b><span id="carLicense"></span></b></p>
+				<p>Reaching to you in <b><span id="eta"></span>  minutes</b></p>
+				<!-- <p>Phone: <b><span id="phNum"></span></p> -->
+			</div>
+			<div class="ride-right">
+				<div class="image">
+					<img src="" alt="driver_picture" id="driverPic"/>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="overlay hide"></div>
+</div>
+<div class="searching-msg hide">
+	Requesting the nearest cab...
+</div>
+<style>
+	.parent-container{
+		font-size: 14px;
+	}
+	#map{
+		position: absolute;
+		top:0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+    	min-height: 100%;
+	}
+	.searching-msg{
+	    position: absolute;
+	    top: 35%;
+	    left: 0px;
+	    padding: 10% 0%;
+	    width: 100%;
+	    text-align: center;
+	    background: white;
+	    z-index: 99999;
+	}
+	.current-loc-head{
+		padding: 10px 0px 0px;
+	}
+	#currentAddress{
+		padding: 10px 0px;
+		line-height: 15px;
+	}
+
+	.alert-data{
+		text-align: center;
+		line-height: 20px;
+		margin-top: 10px;
+	}
+	
+	.ride-left{
+		display: inline-block;
+		width: 65%;
+		line-height: 20px;
+	}
+
+	.ride-right{
+		display: inline-block;
+		width:30%;
+		float: right;
+	}
+
+	.ride-data{
+		margin-left: 10px;
+		font-size: 14px;
+	}
+
+	.hide{
+		display: none;
+	}
+
+	#driverPic{
+		max-width: 100%;
+		max-height: 100%;
+	}
+	.overlay{
+	    position:absolute;
+	    top:0;
+	    left:0;
+	    right:0;
+	    bottom:0;
+	    background-color:rgba(0, 0, 0, 0.55);
+	    z-index:9999;
+	    color:white;
+	}
+	.map-details{
+	    background: white;
+	    position: relative;
+	    /* top: 15%; */
+	    width: 90%;
+	    text-align: center;
+	    margin: 5% auto;
+	    border: 1px solid black;
+	}
+	.ride-alert-box{
+		background: white;
+	    position: absolute;
+	    line-height: 5px;
+	    width: 90%;
+	    top: 350px;
+	    left: 15px;
+	    border: 1px solid black;
+	}
+	.accept-ride{
+		cursor:pointer;
+		width: 85%;
+		padding: 10px 0;
+		margin: 10px auto;
+		background: linear-gradient(to bottom, white, silver, white);
+		border: 1px solid black;
+	}
+</style>
+
+<script type="text/javascript">
+	var userData = <%-JSON.stringify(user)%>;
+	var destLat = userData.destLat;
+	var destLong = userData.destLong;
+	var pickupLat, pickupLong;
+	// var latlngB = {lat: destLat, lng: destLong};
+	(function showLocation(){
+		if(navigator.geolocation){
+			navigator.geolocation.getCurrentPosition(showPosition);
+		} else {
+			alert('doesnt support location');
+		}
+	})();
+	function showPosition(position){
+		var geocoder = new google.maps.Geocoder;
+		var latlng = {lat: position.coords.latitude, lng: position.coords.longitude};
+		geocoder.geocode({'location':latlng}, function(results, status) {
+    		if (status === google.maps.GeocoderStatus.OK) {
+				if (results[1]) {
+					document.getElementById('currentAddress').innerHTML = results[0].formatted_address;
+					pickupLat = position.coords.latitude;
+					pickupLong = position.coords.longitude;
+					createMap(pickupLat, pickupLong);
+					// console.log(google.maps.geometry.spherical.computeDistanceBetween (latlng, latlngB));
+				} else {
+					document.getElementById('currentAddress').innerHTML('Unknown Location');
+				}
+			} else {
+				// window.alert('Geocoder failed due to: ' + status);
+				window.alert('Could not get your location');
+			}
+		});
+	}
+	function createMap(lat, long){
+		var userCenter = new google.maps.LatLng(lat, long);
+		var dest = new google.maps.LatLng(destLat, destLong);
+		var mapProp = {
+			center: userCenter,
+			zoom: 16,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		var userMap=new google.maps.Map(document.getElementById("map"), mapProp);
+		var markerPick = new google.maps.Marker({
+			position: userCenter,
+			title: 'Pickup Location',
+			draggable:true
+		});
+		var markerDest = new google.maps.Marker({
+			position: dest,
+			title: 'Destination'
+		});
+		markerPick.setMap(userMap);
+		markerDest.setMap(userMap);
+		google.maps.event.addListener(markerPick, 'dragend', function(evt){
+			var position = {
+				coords:{
+					latitude: evt.latLng.lat(),
+					longitude: evt.latLng.lng()
+				}
+			};
+			showPosition(position);
+		});
+	}
+
+</script>

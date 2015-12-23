@@ -1,0 +1,31 @@
+<div class="parent-container">
+	<div class="products">
+		<%for(var i=0;i<products.times.length;i++){%>
+			<div class="product" id="product-<%=i%>" data-productid=<%=products.times[i].product_id%>>
+				<div class="product-head">
+					<h3><%=products.times[i].display_name%></h3>
+				</div>
+				<div class="eta">
+					<h4><%=(Math.ceil((products.times[i].estimate)/60))%> minutes away!</h4>
+				</div>
+			</div>
+		<%}%>
+	</div>
+</div>
+<style>
+	.product{
+		border-bottom: 1px solid black;
+		padding: 20px 20px;
+		background: linear-gradient(to bottom, white, silver, white);
+	}
+	.product-head{
+		font-size:20px;
+		margin-bottom: 5px;
+	}
+	.eta{
+		font-size:14px;
+	}
+</style>
+<script>
+	var productsData = <%-JSON.stringify(products)%>;
+</script>
