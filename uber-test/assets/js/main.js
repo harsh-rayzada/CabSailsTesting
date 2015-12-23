@@ -1,6 +1,6 @@
 var interval, requestId;
 $('#acceptRide').click(function(e){
-
+	markerPick.draggable = false;
 	$('.overlay').removeClass('hide');
 	$('.searching-msg').removeClass('hide');
 

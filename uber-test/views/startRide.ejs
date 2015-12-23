@@ -164,7 +164,7 @@
 	var userData = <%-JSON.stringify(user)%>;
 	var destLat = userData.destLat;
 	var destLong = userData.destLong;
-	var pickupLat, pickupLong;
+	var pickupLat, pickupLong, markerPick;
 	// var latlngB = {lat: destLat, lng: destLong};
 	(function showLocation(){
 		if(navigator.geolocation){
@@ -182,7 +182,7 @@
 					document.getElementById('currentAddress').innerHTML = results[0].formatted_address;
 					var parent = document.getElementById('locationPickup');
 					var child = document.getElementById('loader');
-					parent.removeChild(child);
+					if(child) parent.removeChild(child);
 					pickupLat = position.coords.latitude;
 					pickupLong = position.coords.longitude;
 					createMap(pickupLat, pickupLong);
@@ -205,7 +205,7 @@
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
 		var userMap=new google.maps.Map(document.getElementById("map"), mapProp);
-		var markerPick = new google.maps.Marker({
+		markerPick = new google.maps.Marker({
 			position: userCenter,
 			title: 'Pickup Location',
 			draggable:true
