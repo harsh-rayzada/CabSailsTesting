@@ -1,5 +1,7 @@
 var interval, requestId;
 $('.overlay').removeClass('hide');
+var elemHeight = $(window).height() - 116;
+$('.ride-confirm-box').css('top',elemHeight);
 
 // function getTimeEstimate(position, productId, token){
 // 	$.ajax({
