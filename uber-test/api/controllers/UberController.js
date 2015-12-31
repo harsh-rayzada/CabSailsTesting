@@ -30,7 +30,6 @@ module.exports = {
 			lat: req.param('latitude'),
 			long: req.param('longitude')
 		};
-		// res.send(locationData);
 		PickupService.getTimeBasedCabs(locationData, req.param('userToken'), function(err, productsEstimate){
 			err = JSON.parse(err);
 			productsEstimate = JSON.parse(productsEstimate);
@@ -232,6 +231,27 @@ module.exports = {
 				// });
 				res.json({success:true});
 				// res.send(response);
+			}
+		});
+	},
+
+	getNearestPickup: function(req, res){
+		var userPosition = {
+			lat: req.body.position.lat,
+			long: req.body.position.lng
+		};
+
+		PickupService.getTimeBasedCabs(userPosition, req.body.userToken, function(err, response){
+			err = JSON.parse(err);
+			response = JSON.parse(response);
+			if(err){
+				res.status(500).json(err);
+			}else if(response.error){
+				res.status(500).json(response.error);
+			}else{
+				// sails.log.debug(response);
+				var estimateData = _.where(response.times,{product_id:req.body.product_id}); 
+				res.send(estimateData);
 			}
 		});
 	}

@@ -1,0 +1,64 @@
+<script src="http://maps.google.com/maps/api/js?libraries=places&region=uk&language=en&sensor=false"></script>
+<input id="searchTextField" type="text" size="50">             
+<div id="map_canvas"></div>
+<div id="accept">Accept</div>
+<script>
+	var input = document.getElementById('mapSearch');         
+	var autocomplete = new google.maps.places.Autocomplete(input, {
+	    types: ["geocode"]
+	});
+	var lat = 13.022123, lng = 77.649609, latlng = new google.maps.LatLng(lat, lng);
+         
+    var mapOptions = {           
+            center: new google.maps.LatLng(lat, lng),           
+            zoom: 16,           
+            mapTypeId: google.maps.MapTypeId.ROADMAP         
+        },
+        map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions),
+        marker = new google.maps.Marker({
+            position: latlng,
+            map: map
+         });
+     
+    var input = document.getElementById('searchTextField');         
+    var autocomplete = new google.maps.places.Autocomplete(input, {
+        types: ["geocode"]
+    });
+    
+    autocomplete.bindTo('bounds', map);
+
+    google.maps.event.addListener(autocomplete, 'place_changed', function() {
+        var place = autocomplete.getPlace();
+        if (place.geometry.viewport) {
+        	lat = place.geometry.location.lat();
+        	lng = place.geometry.location.lng();
+            map.fitBounds(place.geometry.viewport);
+            map.setCenter(place.geometry.location);	
+            map.setZoom(16); 
+        } else {
+            map.setCenter(place.geometry.location);
+            lat = place.geometry.location.lat();
+        	lng = place.geometry.location.lng();
+            map.setZoom(16);  
+        }
+        moveMarker(place.name, place.geometry.location);
+    });  
+     
+    function moveMarker(placeName, latlng){
+        marker.setPosition(latlng);
+    }
+</script>
+<style>
+	body {         
+    font:14px sans-serif;           
+	} 
+	input {
+	    margin: 0.6em 0.6em 0; 
+	    width:398px;
+	}
+	#map_canvas {         
+	    height: 400px;         
+	    width: 400px;         
+	    margin: 0.6em;       
+	}
+</style>

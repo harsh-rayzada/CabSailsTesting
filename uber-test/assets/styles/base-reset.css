@@ -43,3 +43,13 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
+@font-face{
+	font-family: CalibriRegular;
+	src : url('../fonts/Calibri.eot');
+	src : url('../fonts/Calibri.svg');
+	src : url('../fonts/Calibri.ttf');
+	src : url('../fonts/Calibri.woff');
+}
+body{
+	font-family: CalibriRegular;
+}

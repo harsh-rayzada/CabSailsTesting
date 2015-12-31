@@ -39,11 +39,16 @@ module.exports.routes = {
   'POST /user/status' : 'UberController.checkStatus',
   'GET /user/estimate': 'UberController.getProducts',
   'POST /user/rideTrack': 'UberController.getRideTrackLink',
+  'POST /pickup/nearest': 'UberController.getNearestPickup',
 
   // 'POST /user/getRide' : 'UberController.requestRide',
 
   '/user/location':{
       view: 'location'
+  },
+
+  '/searchplace':{
+      view: 'input_search'
   },
 
   '/': {

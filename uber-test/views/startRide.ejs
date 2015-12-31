@@ -1,35 +1,80 @@
-<script src="https://maps.googleapis.com/maps/api/js"></script>
+<script src="http://maps.google.com/maps/api/js?libraries=places&region=uk&language=en&sensor=false"></script>
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, target-densityDpi=device-dpi" />
+<div class="ride-alert">
+	<div class="ride-alert-parent">
+		<div class="ride-alert-box" id="rideAlert">
+			<div class="alert-data">
+				<div class="alert-img">
+					<img src="<%=user.initiatorImg%>" alt="img" id="userImg">
+				</div>
+				<div class="alert-box">
+					<div class="alert-heading"><p><%=user.name%> has arranged an Uber to take you to</p></div>
+					<div class="ride-info">
+						<div class="ride-destination">
+							<div class="dest-data">
+								<p><b><%=user.destination.length>30?(user.destination.substr(0,30)+"..."):(user.destination)%></b></p>
+								<img src="http://www2.psd100.com/ppp/2013/11/0501/Map-marker-icon-1105213652.png" alt="marker">
+							</div>
+						</div>
+						<div class="appx-time" id="pickupTime">
+							<p>Finding the nearest cab </p>
+							<img src="http://preloaders.net/preloaders/712/Floating%20rays.gif"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="accept-ride" id="acceptRide">
+			ACCEPT
+		</div>		
+	</div>
+</div>
 <div class="parent-container">
 	<div id="map"></div>
-	<div class="map-details" id="mapDetails">
-		<div class="map-header">
-			<p class="current-loc-head">Set your pickup location</p>
-			<div class="location-pickup" id="locationPickup">
-				<p id="currentAddress">Getting your location</p>
-				<img src="http://preloaders.net/preloaders/712/Floating%20rays.gif" id="loader"/>
+	<div class="ride-confirm-data hide">
+		<div class="map-details" id="mapDetails">
+			<div class="map-header">
+				<div class="pickup-data">
+					<p class="current-loc-head">Set your pickup location</p>
+					<div class="location-pickup" id="locationPickup">
+						<p id="currentAddress">Getting your location</p>
+						<img src="http://preloaders.net/preloaders/712/Floating%20rays.gif" id="loader"/>
+					</div>
+					<div class="search-address hide" id="searchAddress">
+						<div class="search-address-container">
+							<img src="http://p.ptcdn.info/485/001/000/22029_7454250620_1-navigation-back_m.jpg" alt="back" id="backToPickup">
+							<input type="text" id="searchTextField"/>
+						</div>
+					</div>
+				</div>
+				<div class="destination-data">
+					<p class="current-loc-head">Destination</p>
+					<div class="location-pickup" id="destination">
+						<%=user.destination.length>35?(user.destination.substr(0,35)+"..."):(user.destination)%>
+					</div>
+					<div class="search-address hide" id="searchDestAddress">
+						<div class="search-address-container">
+							<img src="http://p.ptcdn.info/485/001/000/22029_7454250620_1-navigation-back_m.jpg" alt="back" id="backToDest">
+							<input type="text" id="destSearch"/>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
-	</div>
-	<div class="ride-alert-box" id="rideAlert">
-		<div class="alert-data">
-			<div class="alert-heading"><p><%=user.name%> is requesting to drop you.</p></div>
-			<div class="ride-info">
+		<div class="ride-confirm-box" id="rideConfirm">
+			<div class="confirm-data">
+				<div class="confirm-heading"><p></p></div>
+				<div class="confirm-ride" id="confirmRide">
+					CONFIRM RIDE
+				</div>
 				<div class="ride-estimate">
-					<p>Kindly reply in <b><%=(user.linkExpiry)/60000%> minutes</b></p>
+					<div id="currentEstimate">
+					</div>
 				</div>
-				<div class="ride-cost">
-					<p>Cost to you - <b>Free!</b></p>
-				</div>
-				<div class="ride-dest">
-					<p>Destination: <b><%=user.destination%></b></p>
-				</div>
-			</div>
-			<div class="accept-ride" id="acceptRide">
-				Accept
 			</div>
 		</div>
 	</div>
-	<div class="ride-alert-box hide" id="rideConfirm">
+	<div class="ride-success-box hide">
 		<div class="ride-data">
 			<div class="ride-left">
 				<p><b><span id="driverName"></span>(<span id="rating"></span> stars</b>) - <span id="phNum"></span></p>
@@ -51,19 +96,107 @@
 	<span id="searchMsg">Requesting the nearest cab </span><img src="http://preloaders.net/preloaders/712/Floating%20rays.gif"/>
 </div>
 <style>
+	.pac-container:after{
+		background-image: none;
+		content: none;
+	}
+	.ride-alert-parent{
+		position: absolute;
+		top: 30%;
+		right: 0;
+		left: 0;
+		margin: 0 auto;
+		width: 90%;
+		z-index: 99999;
+	}
+	.ride-success-box{
+		position: absolute;
+	    top: 70%;
+	    background: white;
+	    width: 100%;
+	}
+	.ride-alert-box{
+		font-size: 18px;
+		background: #00bed6;
+	    line-height: 5px;
+	    width: 100%;
+	    color: white;
+	    z-index: 99999;
+	    border-radius: 15px;
+	    margin: 0 0 15px 0;
+	}
+	#userImg{
+		border-radius: 80px;
+		border: 2px solid white;
+		width: 15%;
+		position: absolute;
+    	top: -28px;
+	    left: 43%;
+	}
+	.ride-destination{
+		background: white;
+	}
+	.dest-data{
+		padding: 15px 0;
+		width: 95%;
+		margin-left: 5%;
+		color: gray;
+		margin: 5% 0;
+	}
+	.dest-data p, .dest-data img{
+		display: inline-block;
+		vertical-align: middle;
+	}
+	.dest-data img{
+		/*float: right;*/
+	}
+	.dest-data p{
+		/*float: left;*/
+		width: 85%;
+	}
+	.appx-time{
+		padding: 0 0 15px 0;
+		font-size: 15px;
+	}
 	.searching-msg span, .searching-msg img{
 		vertical-align: middle;
 	}
-
-	.location-pickup p, .location-pickup img{
+	
+	.location-pickup{
+		font-size: 18px;
+		padding: 10px 0;
+	}
+	
+	.location-pickup p, .location-pickup img, .appx-time p, .appx-time img, .search-address-container img, .search-address-container input{
 	    display: inline-block;
 	    vertical-align: middle;
 	}
-	.location-pickup img, .searching-msg img{
+	.location-pickup img, .searching-msg img, .appx-time img{
 		width: 5%;
 	}
 	.parent-container{
 		font-size: 14px;
+	}
+	.ride-confirm-box{
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		font-size: 16px;
+		color:white;
+		background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(180,180,180,0.5), white);
+		text-align: center;
+	}
+	#confirmRide{
+		background:#b4dc3b;
+		padding: 20px 0px;
+		text-align: center;
+		font-size: 20px;
+		width: 70%;
+		margin: 0 auto;
+	}
+	.ride-estimate{
+		padding: 20px 0;
+		color: black;
 	}
 	#map{
 		position: absolute;
@@ -72,6 +205,12 @@
 		width: 100%;
 		height: 100%;
     	min-height: 100%;
+	}
+
+	.search-address-container input {
+	    width: 79%;
+	    padding: 5px 5px;
+	    font-size: 16px;
 	}
 	.searching-msg{
 	    position: absolute;
@@ -87,14 +226,15 @@
 		padding: 10px 0px 0px;
 	}
 	#currentAddress{
-		padding: 10px 0px;
 		line-height: 15px;
 	}
-
+	.alert-heading{
+		padding: 15px 0 0;
+	}
 	.alert-data{
 		text-align: center;
 		line-height: 20px;
-		margin-top: 10px;
+		padding: 25px 0 0;
 	}
 	
 	.ride-left{
@@ -135,28 +275,40 @@
 	.map-details{
 	    background: white;
 	    position: relative;
-	    /* top: 15%; */
 	    width: 90%;
 	    text-align: center;
 	    margin: 5% auto;
-	    border: 1px solid black;
 	}
-	.ride-alert-box{
-		background: white;
-	    position: absolute;
-	    line-height: 5px;
-	    width: 90%;
-	    top: 350px;
-	    left: 15px;
-	    border: 1px solid black;
+	.pickup-data, .destination-data{
+		border: 1px solid black;
 	}
 	.accept-ride{
+		/*position: absolute;*/
 		cursor:pointer;
-		width: 85%;
-		padding: 10px 0;
-		margin: 10px auto;
-		background: linear-gradient(to bottom, white, silver, white);
-		border: 1px solid black;
+		width: 65%;
+		margin: 0 auto;
+		padding: 7% 0;
+		/*top: 60%;*/
+		/*left: 18%;*/
+		background: #b4dc3b;
+		text-align: center;
+		font-size: 22px;
+		color: white;
+		word-spacing: 2px;
+		z-index: 99999;
+		border-radius: 15px;
+	}
+
+	@media screen and (max-width:360px){
+
+	}
+	@media screen and (max-width:320px){
+		.ride-alert-parent {
+			top: 20%;
+		}
+		.ride-alert-box{
+			font-size: 16px;
+		}
 	}
 </style>
 
@@ -164,7 +316,8 @@
 	var userData = <%-JSON.stringify(user)%>;
 	var destLat = userData.destLat;
 	var destLong = userData.destLong;
-	var pickupLat, pickupLong, markerPick;
+	var destAddress = userData.destination;
+	var pickupLat, pickupLong, markerPick, pickUpAddress;
 	// var latlngB = {lat: destLat, lng: destLong};
 	(function showLocation(){
 		if(navigator.geolocation){
@@ -173,49 +326,83 @@
 			alert('doesnt support location');
 		}
 	})();
-	function showPosition(position){
+	function showPosition(position, from){
 		var geocoder = new google.maps.Geocoder;
 		var latlng = {lat: position.coords.latitude, lng: position.coords.longitude};
+		getTimeEstimate(latlng, userData.productId, userData.token);
 		geocoder.geocode({'location':latlng}, function(results, status) {
     		if (status === google.maps.GeocoderStatus.OK) {
 				if (results[1]) {
-					document.getElementById('currentAddress').innerHTML = results[0].formatted_address;
-					var parent = document.getElementById('locationPickup');
-					var child = document.getElementById('loader');
-					if(child) parent.removeChild(child);
-					pickupLat = position.coords.latitude;
-					pickupLong = position.coords.longitude;
-					createMap(pickupLat, pickupLong);
-					// console.log(google.maps.geometry.spherical.computeDistanceBetween (latlng, latlngB));
+					if(!from || from == 'pickup'){
+						pickUpAddress = results[0].formatted_address;
+						if(pickUpAddress.length > 35){
+							document.getElementById('currentAddress').innerHTML = pickUpAddress.substr(0, 35)+"...";
+						}else{
+							document.getElementById('currentAddress').innerHTML = pickUpAddress;
+						}
+						
+						document.getElementById('searchTextField').value = results[0].formatted_address;
+						var parent = document.getElementById('locationPickup');
+						var child = document.getElementById('loader');
+						if(child) parent.removeChild(child);
+						pickupLat = position.coords.latitude;
+						pickupLong = position.coords.longitude;
+						createMap(pickupLat, pickupLong);
+					}else if(from == 'dest'){
+						destAddress = results[0].formatted_address;
+						destLat = position.coords.latitude;
+						destLong = position.coords.longitude;
+						if(destAddress.length > 35){
+							document.getElementById('destination').innerHTML = destAddress.substr(0, 35)+"...";
+						}else{
+							document.getElementById('destination').innerHTML = destAddress;
+						}
+					}
 				} else {
 					document.getElementById('currentAddress').innerHTML('Unknown Location');
 				}
 			} else {
 				// window.alert('Geocoder failed due to: ' + status);
-				window.alert('Could not get your location');
+				alert('Could not get your location');
 			}
 		});
+		// getTimeEstimate(latlng, userData.productId, userData.token);
 	}
+
 	function createMap(lat, long){
 		var userCenter = new google.maps.LatLng(lat, long);
 		var dest = new google.maps.LatLng(destLat, destLong);
 		var mapProp = {
 			center: userCenter,
 			zoom: 16,
-			mapTypeId: google.maps.MapTypeId.ROADMAP
+			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			disableDefaultUI: true
 		};
 		var userMap=new google.maps.Map(document.getElementById("map"), mapProp);
 		markerPick = new google.maps.Marker({
 			position: userCenter,
-			title: 'Pickup Location',
+			label: 'Pickup Location',
+			//icon: add image saying 'pickup location'
 			draggable:true
 		});
-		var markerDest = new google.maps.Marker({
-			position: dest,
-			title: 'Destination'
-		});
+		// var markerDest = new google.maps.Marker({
+		// 	position: dest,
+		// 	title: 'Destination'
+		// });
+		var inputPickup = document.getElementById('searchTextField');
+		// var input = document.getElementById('locationPickup');         
+	    var autocompletePickup = new google.maps.places.Autocomplete(inputPickup, {
+	        types: ["geocode"]
+	    });
+
+	    var inputDest = document.getElementById('destSearch');
+	    var autocompleteDest = new google.maps.places.Autocomplete(inputDest, {
+	        types: ["geocode"]
+	    });
+
+	    autocompletePickup.bindTo('bounds', userMap);
 		markerPick.setMap(userMap);
-		markerDest.setMap(userMap);
+		// markerDest.setMap(userMap);
 		google.maps.event.addListener(markerPick, 'dragend', function(evt){
 			var position = {
 				coords:{
@@ -225,6 +412,39 @@
 			};
 			showPosition(position);
 		});
+		google.maps.event.addListener(autocompletePickup, 'place_changed', function() {
+	        var place = autocompletePickup.getPlace();
+	        var changedPos = {
+	        	coords:{
+	        		latitude: place.geometry.location.lat(),
+	        		longitude: place.geometry.location.lng()
+	        	}
+	        };
+	        showPosition(changedPos, 'pickup');
+	    });
+	    google.maps.event.addListener(autocompleteDest, 'place_changed', function() {
+	        var place = autocompleteDest.getPlace();
+	        var changedPos = {
+	        	coords:{
+	        		latitude: place.geometry.location.lat(),
+	        		longitude: place.geometry.location.lng()
+	        	}
+	        };
+	        // $('#searchDestAddress').addClass('hide');
+	        // $('#destination').removeClass('hide');
+	        showPosition(changedPos, 'dest');
+	    });
 	}
-
+	function getTimeEstimate(position, productId, token){
+		$.ajax({
+			url: '/pickup/nearest',
+			type: 'POST',
+			data: {position: position, product_id: productId, userToken: token},
+			success: function(estimateData){
+				// console.log(Math.ceil((estimateData[0].estimate)/60));
+				$('#pickupTime').text('PICKUP TIME IS APPROXIMATELY '+Math.ceil((estimateData[0].estimate)/60)+' minutes');
+				$('#currentEstimate').text('PICKUP TIME IS APPROXIMATELY '+Math.ceil((estimateData[0].estimate)/60)+' MINUTES');
+			}
+		});
+	}
 </script>
