@@ -4,15 +4,15 @@
 		<div class="ride-alert-box" id="rideAlert">
 			<div class="alert-data">
 				<div class="alert-img">
-					<img src="<%=user.initiatorImg%>" alt="img" id="userImg">
+					<img src="<%=user.linkData.initiatorImg%>" alt="img" id="userImg">
 				</div>
 				<div class="alert-box">
-					<div class="alert-heading"><p><b><%=user.name%></b> has sent an Uber to take you to:</p></div>
+					<div class="alert-heading"><p><b><%=user.linkData.name%></b> has sent an Uber to take you to:</p></div>
 					<div class="ride-info">
 						<div class="ride-destination">
 							<div class="dest-data" id="destination">
 								<img src="http://www2.psd100.com/ppp/2013/11/0501/Map-marker-icon-1105213652.png" alt="marker">
-								<p><b><%=user.destination.length>35?(user.destination.substr(0,35)+"..."):(user.destination)%></b></p>
+								<p><b><%=user.linkData.destination.length>35?(user.linkData.destination.substr(0,35)+"..."):(user.linkData.destination)%></b></p>
 							</div>
 							<div class="search-address hide" id="searchDestAddress">
 								<div class="search-address-container">
@@ -381,7 +381,7 @@
 </style>
 
 <script type="text/javascript">
-	var userData = <%-JSON.stringify(user)%>;
+	var userData = <%-JSON.stringify(user.linkData)%>;
 	var destLat = userData.destLat;
 	var destLong = userData.destLong;
 	var destAddress = userData.destination;
