@@ -31,7 +31,7 @@ module.exports = {
 			if(err){
 				callback(err, null);
 			}else if(linkDetails){
-				linkDetails = JSON.parse(linkDetails);
+				linkDetails.linkData = JSON.parse(linkDetails.linkData);
 				callback(null, linkDetails)
 			}else{
 				callback('No such link', null);
