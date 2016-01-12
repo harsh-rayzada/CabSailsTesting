@@ -103,7 +103,6 @@ function checkStatus(){
 				if(counter == 1){
 					trackRide();
 				}
-			}else if(resp.status == 'arriving' || resp.status == 'in_progress'){
 				var pickup = new google.maps.LatLng(resp.pickup.latitude, resp.pickup.longitude);
 				markerPick = new google.maps.Marker({
 					position: pickup,
@@ -111,10 +110,13 @@ function checkStatus(){
 					//icon: add image saying 'pickup location'
 					// draggable:true
 				});
+				$('.centerMarker').remove();
 				markerPick.setMap(userMap);
-				pickupLocationInterval = setInterval(movePickup(resp.location),2000);
+			}else if(resp.status == 'arriving' || resp.status == 'in_progress'){
+				pickupLocationInterval = setInterval(movePickup(resp.location, resp.driver),2000);
 			}else if(resp.status == 'completed' || resp.status == 'driver_canceled'){
 				clearInterval(interval);
+				clearInterval(pickupLocationInterval);
 			}
 		}
 	});
@@ -132,8 +134,14 @@ function trackRide(){
 	});
 }
 
-function movePickup(driverLocation, pickupLocation){
-	// $('.centerMarker').css('background','url()')
+function movePickup(driverLocation, driver){
+	var driver = new google.maps.LatLng(driverLocation.latitude, driverLocation.longitude);
+	var carMarker = new google.maps.Marker({
+		position: driver,
+		// icon: ''
+	});
+	carMarker.setMap(userMap);
+	map.setCenter(carMarker.getPosition());
 }
 
 // $('.product').click(function(e){
