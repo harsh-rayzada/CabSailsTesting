@@ -1,4 +1,4 @@
-var interval, requestId, var counter = 0;
+var interval, requestId, counter = 0, pickupLocationInterval;
 $('.overlay').removeClass('hide');
 var elemHeight = $(window).height() - 116;
 $('.ride-confirm-box').css('top',elemHeight);
@@ -103,6 +103,8 @@ function checkStatus(){
 				if(counter == 1){
 					trackRide();
 				}
+			}else if(resp.status == 'arriving' || resp.status == 'in_progress'){
+				pickupLocationInterval = setInterval(movePickup(resp.location),2000);
 			}else if(resp.status == 'completed' || resp.status == 'driver_canceled'){
 				clearInterval(interval);
 			}
@@ -121,6 +123,8 @@ function trackRide(){
 		}
 	});
 }
+
+function movePickup()
 
 // $('.product').click(function(e){
 // 	var rideConfirm = confirm('Do you want to book this ride?');

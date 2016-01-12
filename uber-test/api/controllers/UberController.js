@@ -23,7 +23,7 @@ module.exports = {
 	          			// clientId: body.client_id,
 	          			// clientSecret: body.client_secret
 	          		};
-	          		res.view('home',loginData);
+	          		res.view('home',{loginData: loginData});
 	        	}
 	      	});
 	    }else{
@@ -35,14 +35,14 @@ module.exports = {
 	//if product id then send nearest product id
 	getProducts: function(req, res){
 		var that = this;
-		PickupService.getTokenValidity(req.body.token, function(err, tokenResp){
-			err = JSON.parse(err);
-			tokenResp = JSON.parse(tokenResp);
-			if(err){
-				res.negotiate(err);
-			}else if(tokenResp.error){
-				res.negotiate(err);
-			}else{
+		// PickupService.getTokenValidity(req.body.token, function(err, tokenResp){
+		// 	err = JSON.parse(err);
+		// 	tokenResp = JSON.parse(tokenResp);
+		// 	if(err){
+		// 		res.negotiate(err);
+		// 	}else if(tokenResp.error){
+		// 		res.negotiate(err);
+		// 	}else{
 				if(req.body.destination){
 					var locationData = {
 						pickupLat: req.body.pickup.lat,
@@ -71,8 +71,8 @@ module.exports = {
 				}else{
 					res.status(200).json({valid: true});
 				}
-			}
-		});
+		// 	}
+		// });
 	},
 
 	pickupTimeEstimates: function(req, res){

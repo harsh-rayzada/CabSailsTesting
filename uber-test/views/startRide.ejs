@@ -390,14 +390,14 @@
     		if (status === google.maps.GeocoderStatus.OK) {
 				if (results[1]) {
 					if(!from || from == 'pickup' || from == 'map-drag'){
-						pickUpAddress = results[0].formatted_address;
+						pickUpAddress = results[2].formatted_address;
 						if(pickUpAddress.length > 35){
 							document.getElementById('currentAddress').innerHTML = pickUpAddress.substr(0, 30)+"...";
 						}else{
 							document.getElementById('currentAddress').innerHTML = pickUpAddress;
 						}
 						
-						document.getElementById('searchTextField').value = results[0].formatted_address;
+						document.getElementById('searchTextField').value = results[2].formatted_address;
 						var parent = document.getElementById('locationPickup');
 						var child = document.getElementById('loader');
 						if(child) parent.removeChild(child);
@@ -506,13 +506,17 @@
 	}
 	function getTimeEstimate(position, productId, token){
 		$.ajax({
-			url: '/pickup/nearest',
+			url: '/pickup/estimate',
 			type: 'POST',
-			data: {position: position, product_id: productId, userToken: token},
+			data: {pickup: position, product_id: productId, userToken: token},
 			success: function(estimateData){
-				// console.log(Math.ceil((estimateData[0].estimate)/60));
-				$('#pickupTime').text('PICKUP TIME IS ABOUT '+Math.ceil((estimateData[0].estimate)/60)+' MIN');
-				$('#currentEstimate').html('PICKUP TIME IS ABOUT <span class="highlighted">'+Math.ceil((estimateData[0].estimate)/60)+' MINUTES</span>');
+				if(estimateData.length>0){
+					$('#pickupTime').text('PICKUP TIME IS ABOUT '+Math.ceil((estimateData[0].estimate)/60)+' MIN');
+					$('#currentEstimate').html('PICKUP TIME IS ABOUT <span class="highlighted">'+Math.ceil((estimateData[0].estimate)/60)+' MINUTES</span>');
+				}else{
+					$('#pickupTime').text('Sorry, we could not find a cab. Please try again later');
+					$('#currentEstimate').html('Sorry, we could not find a cab. Please reload to try again');
+				}
 			}
 		});
 	}

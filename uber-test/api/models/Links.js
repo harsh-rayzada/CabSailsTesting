@@ -8,7 +8,7 @@ module.exports = {
 			destLong: 77.515566,
 			linkExpiry: 600000,
 			productId: 'db6779d6-d8da-479f-8ac7-8068f4dade6f',
-			// if no product id then string seach method
+			// if no product id then string search method
 			recieverNum: 9620469791,
 			recieverName: 'some name',
 			initiatorNum: 8553595795,
