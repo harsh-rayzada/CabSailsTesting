@@ -104,6 +104,14 @@ function checkStatus(){
 					trackRide();
 				}
 			}else if(resp.status == 'arriving' || resp.status == 'in_progress'){
+				var pickup = new google.maps.LatLng(resp.pickup.latitude, resp.pickup.longitude);
+				markerPick = new google.maps.Marker({
+					position: pickup,
+					label: 'Pickup Location'
+					//icon: add image saying 'pickup location'
+					// draggable:true
+				});
+				markerPick.setMap(userMap);
 				pickupLocationInterval = setInterval(movePickup(resp.location),2000);
 			}else if(resp.status == 'completed' || resp.status == 'driver_canceled'){
 				clearInterval(interval);
@@ -124,7 +132,9 @@ function trackRide(){
 	});
 }
 
-function movePickup()
+function movePickup(driverLocation, pickupLocation){
+	// $('.centerMarker').css('background','url()')
+}
 
 // $('.product').click(function(e){
 // 	var rideConfirm = confirm('Do you want to book this ride?');
