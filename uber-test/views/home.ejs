@@ -2,6 +2,7 @@
 	Hi, You are now logged in to your uber account
 </div>
 <script>
+	var loginData = <%-JSON.stringify(loginData)%>;
 	Uber.saveToken(loginData.accessToken);
 	Uber.saveRefreshToken(loginData.refreshToken);
 </script>

@@ -138,7 +138,7 @@ function movePickup(driverLocation, driver){
 	var driver = new google.maps.LatLng(driverLocation.latitude, driverLocation.longitude);
 	var carMarker = new google.maps.Marker({
 		position: driver,
-		// icon: ''
+		icon: 'http://www.slimmervergelijken.nl/images/icons/autoverzekering.jpg'
 	});
 	carMarker.setMap(userMap);
 	map.setCenter(carMarker.getPosition());
