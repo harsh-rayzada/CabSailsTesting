@@ -99,9 +99,9 @@ function checkStatus(){
 				$('#eta').text(resp.eta);
 				$('#phNum').text(resp.driver.phone_number);
 				$('#driverPic').attr('src',resp.driver.picture_url);
-				alert('Request successful! '+resp.driver.phone_number+' will arrive in '+resp.eta+' minutes!');
 				if(counter == 1){
 					trackRide();
+					alert('Request successful! '+resp.driver.phone_number+' will arrive in '+resp.eta+' minutes!');
 				}
 				var pickup = new google.maps.LatLng(resp.pickup.latitude, resp.pickup.longitude);
 				markerPick = new google.maps.Marker({
@@ -112,6 +112,7 @@ function checkStatus(){
 				});
 				$('.centerMarker').remove();
 				markerPick.setMap(userMap);
+				movePickup(resp.location, resp.driver)
 			}else if(resp.status == 'arriving' || resp.status == 'in_progress'){
 				pickupLocationInterval = setInterval(movePickup(resp.location, resp.driver),2000);
 			}else if(resp.status == 'completed' || resp.status == 'driver_canceled'){
