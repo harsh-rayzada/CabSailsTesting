@@ -17,7 +17,13 @@ module.exports = {
 	        		res.status(500).json(body);
 	        	}else{
 	          		sails.log.debug('login successful');
-	          		res.view('home',{accessToken: body.access_token, refreshToken: body.refresh_token});
+	          		var loginData = {
+	          			accessToken: body.access_token,
+	          			refreshToken: body.refresh_token,
+	          			// clientId: body.client_id,
+	          			// clientSecret: body.client_secret
+	          		};
+	          		res.view('home',loginData);
 	        	}
 	      	});
 	    }else{
@@ -25,23 +31,84 @@ module.exports = {
 	    }
 	},
 
+	//get nearest products to pickup lat long if no product id,
+	//if product id then send nearest product id
 	getProducts: function(req, res){
-		var locationData = {
-			lat: req.param('latitude'),
-			long: req.param('longitude')
-		};
-		PickupService.getTimeBasedCabs(locationData, req.param('userToken'), function(err, productsEstimate){
+		var that = this;
+		PickupService.getTokenValidity(req.body.token, function(err, tokenResp){
 			err = JSON.parse(err);
-			productsEstimate = JSON.parse(productsEstimate);
+			tokenResp = JSON.parse(tokenResp);
 			if(err){
-				res.status(500).json(err);
-			}else if(productsEstimate.error){
-				res.status(500).json(productsEstimate);
+				res.negotiate(err);
+			}else if(tokenResp.error){
+				res.negotiate(err);
 			}else{
-				productsEstimate.lat = locationData.lat;
-				productsEstimate.long = locationData.long;
-				productsEstimate.token = req.param('userToken');
-				res.view('product_list', {products: productsEstimate});
+				if(req.body.destination){
+					var locationData = {
+						pickupLat: req.body.pickup.lat,
+						pickuplong: req.body.pickup.lng,
+						destlat: req.body.destination.lat,
+						destlong: req.body.destination.lng
+					};
+					PickupService.getPriceEstimates(locationData, req.body.token, function(err, priceEstimates){
+						err = JSON.parse(err);
+						priceEstimates = JSON.parse(priceEstimates);
+						if(err){
+							sails.log.debug('err in getting price estimates');
+							res.negotiate(err);
+							// err.
+						}else if(priceEstimates.error){
+							sails.log.debug('err in getting price estimates');
+							res.status(500).json(priceEstimates);
+						}else{
+							sails.log.debug('got price estimates');
+							req.priceEstimates = priceEstimates;
+							that.pickupTimeEstimates(req, res);
+						}
+					});
+				}else if(req.body.pickup){
+					that.pickupTimeEstimates(req, res);
+				}else{
+					res.status(200).json({valid: true});
+				}
+			}
+		});
+	},
+
+	pickupTimeEstimates: function(req, res){
+		sails.log.debug('entered pickup time estimates');
+		var pickupLocationData = {
+			lat: req.body.pickup.lat,
+			long: req.body.pickup.lng
+		};
+		PickupService.getTimeEstimates(pickupLocationData, req.body.token, function(err, timeEstimates){
+			err = JSON.parse(err);
+			timeEstimates = JSON.parse(timeEstimates);
+			if(err){
+				sails.log.debug('err in getting time estimates');
+				res.status(500).json(err);
+			}else if(timeEstimates.error){
+				sails.log.debug('err in getting time estimates');
+				res.status(500).json(timeEstimates);
+			}else{
+				sails.log.debug('got time estimates');
+				if(req.priceEstimates){
+					timeEstimates.times.sort(function(a,b){return (a.display_name>b.display_name)});
+					req.priceEstimates.prices.sort(function(a,b){return (a.display_name>b.display_name)});
+					_.each(timeEstimates.times, function(timeEstimate, index){
+						timeEstimate.surge_multiplier = req.priceEstimates.prices[index].surge_multiplier;
+					});
+				}
+				if(req.body.product_id){
+					var estimateData = _.where(timeEstimates.times,{product_id:req.body.product_id}); 
+					res.send(estimateData);
+				}else{
+					// timeEstimates.pickupLat = pickupLocationData.lat;
+					// timeEstimates.long = pickupLocationData.long;
+					// timeEstimates.token = req.param('userToken');
+					res.send(timeEstimates);
+					// res.view('product_list', {products: timeEstimates});
+				}
 			}
 		});
 	},
@@ -150,7 +217,7 @@ module.exports = {
 		}
 	},
 
-	getDetails: function(req, res){
+	getRideDetails: function(req, res){
 		Links.getLinkDetails(req.param('id'), function(err, initiatorData){
 			if(err){
 				res.serverError(err);
@@ -206,19 +273,28 @@ module.exports = {
 			}else if(response.error){
 				res.status(500).json(response.error);
 			}else{
+				sails.log.debug(response);
 				res.send(response);
 			}
 		});
 	},
 
 	getRideTrackLink: function(req, res){
+		// var initiator = User.getUser(req.body.initiatorNum, function(err, initiatorData){return initiatorData});
+		// var reciever = User.getUser(req.body.recieverNum, function(err, recieverData){return recieverData});
 		PickupService.getRideLink(req.body.rideId, req.body.token, function(err, response){
+			err = JSON.parse(err);
 			response = JSON.parse(response);
 			if(err){
 				res.status(500).json(err);
 			}else if(response.error){
 				res.status(500).json(response.error);
 			}else{
+				//uber response
+				// {
+				//   "request_id":"b5512127-a134-4bf4-b1ba-fe9f48f56d9d",
+				//   "href":"https://trip.uber.com/abc123"
+				// }
 				var recieverMsg = "Your ride is arriving to your location. Click on the link to follow. "+response.href;
 				var initiatorMsg = "Your booked ride for "+req.body.initiatorNum+" is arriving at their location. Click this link to follow. "+response.href;
 				// SMSService.rideNotification({to: req.body.recieverNum, message: recieverMsg}, function(err, msgResponse){
@@ -229,19 +305,23 @@ module.exports = {
 				// 	if(err)
 				// 		res.serverError(err);
 				// });
+				var pushNotificationMessage = {
+                	type: 'uber',
+                	txt: 'trip link and ride id',
+                	data: response
+            	};
+            	// PushNotificationService.sendNotification(user, pushNotificationMessage);
 				res.json({success:true});
 				// res.send(response);
 			}
 		});
 	},
 
-	getNearestPickup: function(req, res){
-		var userPosition = {
-			lat: req.body.position.lat,
-			long: req.body.position.lng
-		};
-
-		PickupService.getTimeBasedCabs(userPosition, req.body.userToken, function(err, response){
+	cancelPickup: function(req, res){
+		// needed in request - req.body.initiatorNum, recieverNum, requestId, userToken
+		var initiator = User.getUser(req.body.initiatorNum, function(err, initiatorData){return initiatorData});
+		var reciever = User.getUser(req.body.recieverNum, function(err, recieverData){return recieverData});
+		PickupService.cancelRide(req.body.requestId, req.body.userToken, function(err, response){
 			err = JSON.parse(err);
 			response = JSON.parse(response);
 			if(err){
@@ -249,9 +329,17 @@ module.exports = {
 			}else if(response.error){
 				res.status(500).json(response.error);
 			}else{
-				// sails.log.debug(response);
-				var estimateData = _.where(response.times,{product_id:req.body.product_id}); 
-				res.send(estimateData);
+				if(origin == 'web'){
+					var pushNotificationMessage = {
+	                	type: 'uber',
+	                	txt: 'Uber cancelled by '+reciever.first_name
+	            	};
+	            	PushNotificationService.sendNotification(user, pushNotificationMessage);
+	            	var message = reciever.first_name+" has cancelled the Uber you had booked for them.";
+			    	sails.log.debug(message, 'sending message to '+initiator.mobile);
+			    	SMSService.send({to: initiator.mobile, message: message});
+				}
+				res.send(response);
 			}
 		});
 	}

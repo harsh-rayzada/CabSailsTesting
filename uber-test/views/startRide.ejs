@@ -1,5 +1,4 @@
 <script src="http://maps.google.com/maps/api/js?libraries=places&region=uk&language=en&sensor=false"></script>
-<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, target-densityDpi=device-dpi" />
 <div class="ride-alert">
 	<div class="ride-alert-parent">
 		<div class="ride-alert-box" id="rideAlert">
@@ -8,17 +7,24 @@
 					<img src="<%=user.initiatorImg%>" alt="img" id="userImg">
 				</div>
 				<div class="alert-box">
-					<div class="alert-heading"><p><%=user.name%> has arranged an Uber to take you to</p></div>
+					<div class="alert-heading"><p><b><%=user.name%></b> has sent an Uber to take you to:</p></div>
 					<div class="ride-info">
 						<div class="ride-destination">
-							<div class="dest-data">
-								<p><b><%=user.destination.length>30?(user.destination.substr(0,30)+"..."):(user.destination)%></b></p>
+							<div class="dest-data" id="destination">
 								<img src="http://www2.psd100.com/ppp/2013/11/0501/Map-marker-icon-1105213652.png" alt="marker">
+								<p><b><%=user.destination.length>35?(user.destination.substr(0,35)+"..."):(user.destination)%></b></p>
+							</div>
+							<div class="search-address hide" id="searchDestAddress">
+								<div class="search-address-container">
+									<img src="http://p.ptcdn.info/485/001/000/22029_7454250620_1-navigation-back_m.jpg" alt="back" id="backToDest">
+									<input type="text" id="destSearch" placeholder="Enter a destination"/>
+									<img src="/images/close-icon.png" alt="back" class="clear-text">
+								</div>
 							</div>
 						</div>
 						<div class="appx-time" id="pickupTime">
 							<p>Finding the nearest cab </p>
-							<img src="http://preloaders.net/preloaders/712/Floating%20rays.gif"/>
+							<img src="/images/23.gif"/>
 						</div>
 					</div>
 				</div>
@@ -35,19 +41,20 @@
 		<div class="map-details" id="mapDetails">
 			<div class="map-header">
 				<div class="pickup-data">
-					<p class="current-loc-head">Set your pickup location</p>
+					<p class="current-loc-head"><span class="highlighted">PICKUP LOCATION</span></p>
 					<div class="location-pickup" id="locationPickup">
 						<p id="currentAddress">Getting your location</p>
 						<img src="http://preloaders.net/preloaders/712/Floating%20rays.gif" id="loader"/>
 					</div>
-					<div class="search-address hide" id="searchAddress">
+					<div class="search-address search-address-padding hide" id="searchAddress">
 						<div class="search-address-container">
-							<img src="http://p.ptcdn.info/485/001/000/22029_7454250620_1-navigation-back_m.jpg" alt="back" id="backToPickup">
-							<input type="text" id="searchTextField"/>
+							<img src="/images/graph-previous.png" alt="back" id="backToPickup">
+							<input type="text" id="searchTextField" placeholder="Enter your pickup location"/>
+							<img src="/images/close-icon.png" alt="back" class="clear-text">
 						</div>
 					</div>
 				</div>
-				<div class="destination-data">
+				<!-- <div class="destination-data">
 					<p class="current-loc-head">Destination</p>
 					<div class="location-pickup" id="destination">
 						<%=user.destination.length>35?(user.destination.substr(0,35)+"..."):(user.destination)%>
@@ -58,7 +65,7 @@
 							<input type="text" id="destSearch"/>
 						</div>
 					</div>
-				</div>
+				</div> -->
 			</div>
 		</div>
 		<div class="ride-confirm-box" id="rideConfirm">
@@ -96,6 +103,9 @@
 	<span id="searchMsg">Requesting the nearest cab </span><img src="http://preloaders.net/preloaders/712/Floating%20rays.gif"/>
 </div>
 <style>
+	.pac-container{
+		z-index: 99999;
+	}
 	.pac-container:after{
 		background-image: none;
 		content: none;
@@ -128,20 +138,22 @@
 	#userImg{
 		border-radius: 80px;
 		border: 2px solid white;
-		width: 15%;
+		width: 20%;
 		position: absolute;
-    	top: -28px;
-	    left: 43%;
+    	top: -43px;
+    	left: 40%;
 	}
 	.ride-destination{
 		background: white;
 	}
-	.dest-data{
-		padding: 15px 0;
+	.dest-data , .search-address{
+		padding: 12px 0;
 		width: 95%;
-		margin-left: 5%;
 		color: gray;
-		margin: 5% 0;
+		margin: 5px auto;
+	}
+	.search-address-padding{
+		padding: 0px;
 	}
 	.dest-data p, .dest-data img{
 		display: inline-block;
@@ -149,23 +161,33 @@
 	}
 	.dest-data img{
 		/*float: right;*/
+		opacity: 0.5;
 	}
 	.dest-data p{
 		/*float: left;*/
 		width: 85%;
+		font-size: 13px;
+		text-align: left;
 	}
 	.appx-time{
-		padding: 0 0 15px 0;
-		font-size: 15px;
+		padding: 8px 0 22px 0;
+		font-size: 13px;
 	}
 	.searching-msg span, .searching-msg img{
 		vertical-align: middle;
 	}
 	
 	.location-pickup{
-		font-size: 18px;
-		padding: 10px 0;
+    	font-size: 14px;
+	    padding: 10px 0px;
+	    width: 80%;
+	    text-align: center;
+	    margin: 0 auto;
 	}
+
+	/*.search-address{
+		padding: 12px 0;
+	}*/
 	
 	.location-pickup p, .location-pickup img, .appx-time p, .appx-time img, .search-address-container img, .search-address-container input{
 	    display: inline-block;
@@ -173,6 +195,14 @@
 	}
 	.location-pickup img, .searching-msg img, .appx-time img{
 		width: 5%;
+	}
+	.search-address-container img{
+		width: 7%;
+	}
+	
+	.appx-time img{
+		width: 10%;
+    	padding-top: 3px;
 	}
 	.parent-container{
 		font-size: 14px;
@@ -183,20 +213,22 @@
 		width: 100%;
 		font-size: 16px;
 		color:white;
-		background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(180,180,180,0.5), white);
+		background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(89, 86, 86, 0.5), #484949);
 		text-align: center;
 	}
 	#confirmRide{
-		background:#b4dc3b;
+		background:#9DCF03;
 		padding: 20px 0px;
 		text-align: center;
-		font-size: 20px;
+		font-size: 16px;
 		width: 70%;
 		margin: 0 auto;
+		border-radius: 10px;
 	}
 	.ride-estimate{
-		padding: 20px 0;
-		color: black;
+		padding: 40px 0 20px;
+		color: white;
+		font-size: 12px;
 	}
 	#map{
 		position: absolute;
@@ -210,7 +242,8 @@
 	.search-address-container input {
 	    width: 79%;
 	    padding: 5px 5px;
-	    font-size: 16px;
+	    font-size: 13px;
+	    border:none;
 	}
 	.searching-msg{
 	    position: absolute;
@@ -224,12 +257,17 @@
 	}
 	.current-loc-head{
 		padding: 10px 0px 0px;
+		font-size: 10px;
+    	color: #05A405
 	}
 	#currentAddress{
 		line-height: 15px;
 	}
 	.alert-heading{
-		padding: 15px 0 0;
+		padding: 5px 0 0;
+		font-size: 14px;
+		width: 80%;
+    	margin: 0 auto 14px;
 	}
 	.alert-data{
 		text-align: center;
@@ -280,7 +318,7 @@
 	    margin: 5% auto;
 	}
 	.pickup-data, .destination-data{
-		border: 1px solid black;
+		border: 1px solid #DDDFDD;
 	}
 	.accept-ride{
 		/*position: absolute;*/
@@ -290,13 +328,31 @@
 		padding: 7% 0;
 		/*top: 60%;*/
 		/*left: 18%;*/
-		background: #b4dc3b;
+		background: #9DCF03;
 		text-align: center;
-		font-size: 22px;
+		font-size: 16px;
 		color: white;
 		word-spacing: 2px;
 		z-index: 99999;
 		border-radius: 15px;
+	}
+	.highlighted{
+		color:#00bed6;
+	}
+	#map .centerMarker{
+		position:absolute;
+		/*url of the marker*/
+		background:url(http://maps.gstatic.com/mapfiles/markers2/marker.png) no-repeat;
+		/*center the marker*/
+		top:50%;left:50%;
+		z-index:1;
+		/*fix offset when needed*/
+		margin-left:-10px;
+		margin-top:-34px;
+		/*size of the image*/
+		height:34px;
+		width:20px;
+		cursor:pointer;
 	}
 
 	@media screen and (max-width:360px){
@@ -333,10 +389,10 @@
 		geocoder.geocode({'location':latlng}, function(results, status) {
     		if (status === google.maps.GeocoderStatus.OK) {
 				if (results[1]) {
-					if(!from || from == 'pickup'){
+					if(!from || from == 'pickup' || from == 'map-drag'){
 						pickUpAddress = results[0].formatted_address;
 						if(pickUpAddress.length > 35){
-							document.getElementById('currentAddress').innerHTML = pickUpAddress.substr(0, 35)+"...";
+							document.getElementById('currentAddress').innerHTML = pickUpAddress.substr(0, 30)+"...";
 						}else{
 							document.getElementById('currentAddress').innerHTML = pickUpAddress;
 						}
@@ -347,13 +403,15 @@
 						if(child) parent.removeChild(child);
 						pickupLat = position.coords.latitude;
 						pickupLong = position.coords.longitude;
-						createMap(pickupLat, pickupLong);
+						if(!from || from == 'pickup'){
+							createMap(pickupLat, pickupLong);
+						}
 					}else if(from == 'dest'){
 						destAddress = results[0].formatted_address;
 						destLat = position.coords.latitude;
 						destLong = position.coords.longitude;
 						if(destAddress.length > 35){
-							document.getElementById('destination').innerHTML = destAddress.substr(0, 35)+"...";
+							document.getElementById('destination').innerHTML = destAddress.substr(0, 30)+"...";
 						}else{
 							document.getElementById('destination').innerHTML = destAddress;
 						}
@@ -366,7 +424,6 @@
 				alert('Could not get your location');
 			}
 		});
-		// getTimeEstimate(latlng, userData.productId, userData.token);
 	}
 
 	function createMap(lat, long){
@@ -374,17 +431,18 @@
 		var dest = new google.maps.LatLng(destLat, destLong);
 		var mapProp = {
 			center: userCenter,
-			zoom: 16,
+			zoom: 15,
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
 			disableDefaultUI: true
 		};
 		var userMap=new google.maps.Map(document.getElementById("map"), mapProp);
-		markerPick = new google.maps.Marker({
-			position: userCenter,
-			label: 'Pickup Location',
-			//icon: add image saying 'pickup location'
-			draggable:true
-		});
+		// markerPick = new google.maps.Marker({
+		// 	position: userCenter,
+		// 	label: 'Pickup Location',
+		// 	//icon: add image saying 'pickup location'
+		// 	// draggable:true
+		// });
+		$('<div/>').addClass('centerMarker').appendTo(userMap.getDiv());
 		// var markerDest = new google.maps.Marker({
 		// 	position: dest,
 		// 	title: 'Destination'
@@ -401,17 +459,28 @@
 	    });
 
 	    autocompletePickup.bindTo('bounds', userMap);
-		markerPick.setMap(userMap);
+		// markerPick.setMap(userMap);
+		// markerPick.bindTo('position', userMap, 'center');
 		// markerDest.setMap(userMap);
-		google.maps.event.addListener(markerPick, 'dragend', function(evt){
+		userMap.addListener('dragend', function(){
+			// console.log(markerPick.getPosition().lat(), markerPick.getPosition().lng());
 			var position = {
 				coords:{
-					latitude: evt.latLng.lat(),
-					longitude: evt.latLng.lng()
+					latitude: userMap.getCenter().lat(),
+					longitude: userMap.getCenter().lng()
 				}
 			};
-			showPosition(position);
+			showPosition(position, 'map-drag');
 		});
+		// google.maps.event.addListener(markerPick, 'dragend', function(evt){
+		// 	var position = {
+		// 		coords:{
+		// 			latitude: evt.latLng.lat(),
+		// 			longitude: evt.latLng.lng()
+		// 		}
+		// 	};
+		// 	showPosition(position);
+		// });
 		google.maps.event.addListener(autocompletePickup, 'place_changed', function() {
 	        var place = autocompletePickup.getPlace();
 	        var changedPos = {
@@ -442,8 +511,8 @@
 			data: {position: position, product_id: productId, userToken: token},
 			success: function(estimateData){
 				// console.log(Math.ceil((estimateData[0].estimate)/60));
-				$('#pickupTime').text('PICKUP TIME IS APPROXIMATELY '+Math.ceil((estimateData[0].estimate)/60)+' minutes');
-				$('#currentEstimate').text('PICKUP TIME IS APPROXIMATELY '+Math.ceil((estimateData[0].estimate)/60)+' MINUTES');
+				$('#pickupTime').text('PICKUP TIME IS ABOUT '+Math.ceil((estimateData[0].estimate)/60)+' MIN');
+				$('#currentEstimate').html('PICKUP TIME IS ABOUT <span class="highlighted">'+Math.ceil((estimateData[0].estimate)/60)+' MINUTES</span>');
 			}
 		});
 	}

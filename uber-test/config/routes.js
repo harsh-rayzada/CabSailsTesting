@@ -34,12 +34,12 @@ module.exports.routes = {
 
   'GET /user/pickupLogin' : 'UberController.loginPickup',
   'POST /user/pickup'     : 'UberController.options',
-  'GET /booking/:id'  :   'UberController.getDetails',
-  'POST /user/request': 'UberController.requestPickup',
-  'POST /user/status' : 'UberController.checkStatus',
-  'GET /user/estimate': 'UberController.getProducts',
-  'POST /user/rideTrack': 'UberController.getRideTrackLink',
-  'POST /pickup/nearest': 'UberController.getNearestPickup',
+  'GET /booking/:id'      : 'UberController.getRideDetails',
+  'POST /user/request'    : 'UberController.requestPickup',
+  'POST /user/status'     : 'UberController.checkStatus',
+  'POST /pickup/estimate' : 'UberController.getProducts',
+  'POST /user/rideTrack'  : 'UberController.getRideTrackLink',
+  'POST /user/request/cancel'   : 'UberController.cancelPickup',
 
   // 'POST /user/getRide' : 'UberController.requestRide',
 

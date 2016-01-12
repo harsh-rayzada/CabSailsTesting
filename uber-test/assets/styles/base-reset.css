@@ -50,6 +50,26 @@ table {
 	src : url('../fonts/Calibri.ttf');
 	src : url('../fonts/Calibri.woff');
 }
+/*@font-face{
+	font-family: RobotoRegular;
+	src : url('../fonts/roboto-reg.eot?') format('embedded-opentype');
+	src : url('../fonts/roboto-reg.svg') format('svg');
+	src : url('../fonts/roboto-reg.ttf') format('truetype');
+	src : url('../fonts/roboto-reg.woff') format('woff');
+	src : url('../fonts/roboto-reg.woff2');
+}*/
+@font-face {
+    font-family: RobotoRegular;
+    src: url('../fonts/roboto-reg.eot');
+    src: url('../fonts/roboto-reg.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/roboto-reg.woff2') format('woff2'),
+         url('../fonts/roboto-reg.woff') format('woff'),
+         url('../fonts/roboto-reg.ttf') format('truetype'),
+         url('../fonts/roboto-reg.svg#robotoregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
 body{
-	font-family: CalibriRegular;
+	font-family: RobotoRegular;
 }

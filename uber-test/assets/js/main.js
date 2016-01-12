@@ -1,20 +1,13 @@
-var interval, requestId;
+var interval, requestId, var counter = 0;
 $('.overlay').removeClass('hide');
 var elemHeight = $(window).height() - 116;
 $('.ride-confirm-box').css('top',elemHeight);
-
-// function getTimeEstimate(position, productId, token){
-// 	$.ajax({
-// 		url: '/pickup/nearest',
-// 		type: 'POST',
-// 		data: {position: position, product_id: productId, userToken: token},
-// 		success: function(estimateData){
-// 			// console.log(Math.ceil((estimateData[0].estimate)/60));
-// 			$('#pickupTime').text('PICKUP TIME IS APPROXIMATELY '+Math.ceil((estimateData[0].estimate)/60)+' minutes');
-// 			$('#currentEstimate').text('PICKUP TIME IS APPROXIMATELY '+Math.ceil((estimateData[0].estimate)/60)+' MINUTES');
-// 		}
-// 	});
+// if((navigator.userAgent.indexOf('Safari') != -1) && (navigator.userAgent.indexOf('Chrome') == -1)) {
+// 	$('.map-details').css('margin','40px auto');
 // }
+$('.clear-text').click(function(e){
+	$(this).prev().val('').focus();
+});
 
 $('#acceptRide').click(function(e){
 	$('.overlay').addClass('hide');
@@ -25,6 +18,7 @@ $('#acceptRide').click(function(e){
 $('#locationPickup').click(function(e){
 	$('#locationPickup').addClass('hide');
 	$('#searchAddress').removeClass('hide');
+	$('#searchTextField').focus().select();
 });
 
 $('#backToPickup').click(function(e){
@@ -39,9 +33,17 @@ $('#destination').click(function(e){
 	$('#destination').addClass('hide');
 	$('#searchDestAddress').removeClass('hide');
 	$('#destSearch').val(destAddress);
+	$('#destSearch').select();
+});
+
+$('#destSearch').focus(function(e){
+	if(!((navigator.userAgent.indexOf('Safari') != -1) && (navigator.userAgent.indexOf('Chrome') == -1))) {
+		$('.ride-alert-parent').css('top','0%');
+	}
 });
 
 $('#backToDest').click(function(e){
+	$('.ride-alert-parent').css('top','30%');
 	$('#destination').removeClass('hide');
 	$('#searchDestAddress').addClass('hide');
 	if($.trim($('#destSearch').val()) == ""){
@@ -50,7 +52,7 @@ $('#backToDest').click(function(e){
 });
 
 $('#confirmRide').click(function(e){
-	markerPick.setDraggable(false);
+	// markerPick.setDraggable(false);
 	$('.overlay').removeClass('hide');
 	$('.searching-msg').removeClass('hide');
 
@@ -84,8 +86,8 @@ function checkStatus(){
 		type: 'POST',
 		data:{rideId: requestId, token: userData.token},
 		success:function(resp){
+			counter = counter + 1;
 			if(resp.status == 'accepted'){
-				clearInterval(interval);
 				$('.overlay').addClass('hide');
 				$('.searching-msg').addClass('hide');
 				$('.ride-confirm-data').addClass('hide');
@@ -98,7 +100,11 @@ function checkStatus(){
 				$('#phNum').text(resp.driver.phone_number);
 				$('#driverPic').attr('src',resp.driver.picture_url);
 				alert('Request successful! '+resp.driver.phone_number+' will arrive in '+resp.eta+' minutes!');
-				trackRide();
+				if(counter == 1){
+					trackRide();
+				}
+			}else if(resp.status == 'completed' || resp.status == 'driver_canceled'){
+				clearInterval(interval);
 			}
 		}
 	});
@@ -110,44 +116,44 @@ function trackRide(){
 		type:'POST',
 		data:{rideId: requestId, token: userData.token, recieverNum: userData.recieverNum, initiatorNum:userData.initiatorNum},
 		success: function(resp){
-			//Do something
+			//Do something - not yet decided
 			console.log(resp);
 		}
 	});
 }
 
-$('.product').click(function(e){
-	var rideConfirm = confirm('Do you want to book this ride?');
-	if(rideConfirm == true){
-		// $.ajax({
-		// 	url: '/user/rideLink',
-		// 	type: 'POST',
-		// 	data: {
+// $('.product').click(function(e){
+// 	var rideConfirm = confirm('Do you want to book this ride?');
+// 	if(rideConfirm == true){
+// 		// $.ajax({
+// 		// 	url: '/user/rideLink',
+// 		// 	type: 'POST',
+// 		// 	data: {
 
-		// 	},
-		// 	success: function(resp){
-		// 		console.log(resp);
-		// 	}
-		// });
-		// var rideData = {
-		// 	product_id: $(this).data('productid'),
-		// 	start_latitude: productsData.lat,
-		// 	start_longitude: productsData.long
-		// 	// end_latitude: req.body.destLatitude,
-		// 	// end_longitude: req.body.destLongitude
-		// };
+// 		// 	},
+// 		// 	success: function(resp){
+// 		// 		console.log(resp);
+// 		// 	}
+// 		// });
+// 		// var rideData = {
+// 		// 	product_id: $(this).data('productid'),
+// 		// 	start_latitude: productsData.lat,
+// 		// 	start_longitude: productsData.long
+// 		// 	// end_latitude: req.body.destLatitude,
+// 		// 	// end_longitude: req.body.destLongitude
+// 		// };
 
-		// $.ajax({
-		// 	url: 'https://sandbox-api.uber.com/v1/requests',
-		// 	type: 'POST',
-		// 	headers: {
-		// 		'Authorization': 'Bearer '+productsData.token,
-		// 		'Content-Type': 'application/json'
-		// 	},
-		// 	data: rideData,
-		// 	success: function(resp){
+// 		// $.ajax({
+// 		// 	url: 'https://sandbox-api.uber.com/v1/requests',
+// 		// 	type: 'POST',
+// 		// 	headers: {
+// 		// 		'Authorization': 'Bearer '+productsData.token,
+// 		// 		'Content-Type': 'application/json'
+// 		// 	},
+// 		// 	data: rideData,
+// 		// 	success: function(resp){
 
-		// 	}
-		// })
-	}
-});	
+// 		// 	}
+// 		// })
+// 	}
+// });	

@@ -6,6 +6,8 @@ exports.pickupLogin = function(code, callback){
       	if(err){
       		callback(err, null);
       	}else{
+      		body.client_secret = 'CS0D2nvlx4_BRUry7GlrEjdP-Sh7sD7HNVP-Gr2g';
+      		body.client_id = 'XJyYPJd9aKwtIHRmnx_gEksS0VLQ1WHc';
       		callback(null, body);
       	}
     });
@@ -26,7 +28,7 @@ exports.requestRide = function(rideData, userCabToken, callback){
 	});
 };
 
-exports.getTimeBasedCabs = function(locationData, userCabToken, callback){
+exports.getTimeEstimates = function(locationData, userCabToken, callback){
 	request
 	.get({
 		url:'https://sandbox-api.uber.com/v1/estimates/time?start_latitude='+locationData.lat+'&start_longitude='+locationData.long,
@@ -62,6 +64,38 @@ exports.getRideLink = function(rideId, token, callback){
 	request
 	.get({
 		url: "https://sandbox-api.uber.com/v1/requests/"+rideId+"/map",
+		headers: {
+			'Authorization': 'Bearer '+token
+		}
+	}, function(err, httpResp, body){
+		if(err){
+			callback(err, null);
+		}else{
+			callback(null, body);
+		}
+	});
+};
+
+exports.cancelRide = function(rideId, token, callback){
+	request
+	.del({
+		url: "https://sandbox-api.uber.com/v1/requests/"+rideId,
+		headers: {
+			'Authorization': 'Bearer '+token
+		}
+	}, function(err, httpResp, body){
+		if(err){
+			callback(err, null);
+		}else{
+			callback(null, body);
+		}
+	});
+};
+
+exports.getPriceEstimates = function(locationData, token, callback){
+	request
+	.get({
+		url: "https://sandbox-api.uber.com/v1/estimates/price?start_latitude="+locationData.pickupLat+"&start_longitude="+locationData.pickuplong+"&end_latitude="+locationData.destlat+"&end_longitude="+locationData.destlong,
 		headers: {
 			'Authorization': 'Bearer '+token
 		}
