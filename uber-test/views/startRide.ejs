@@ -395,8 +395,10 @@
 		}
 	})();
 	function showPosition(position, from){
+		console.log(position);
 		var geocoder = new google.maps.Geocoder;
 		var latlng = {lat: position.coords.latitude, lng: position.coords.longitude};
+		console.log(latlng);
 		getTimeEstimate(latlng, userData.productId, userData.token);
 		geocoder.geocode({'location':latlng}, function(results, status) {
     		if (status === google.maps.GeocoderStatus.OK) {
@@ -482,6 +484,7 @@
 					longitude: userMap.getCenter().lng()
 				}
 			};
+			console.log(position);
 			showPosition(position, 'map-drag');
 		});
 		// google.maps.event.addListener(markerPick, 'dragend', function(evt){
