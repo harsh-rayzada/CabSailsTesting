@@ -2,13 +2,13 @@ var request = require('request');
 
 exports.pickupLogin = function(code, callback){
 	request
-    .post('https://login.uber.com/oauth/v2/token?client_secret=yceyfAB_-wTeIj1OOyQaUE-1ZbD8LT13A3Y2okME&client_id=JFVitPjuNEKRNz3EGguzYiezSpasQLOk&grant_type=authorization_code&redirect_uri=http://localhost:2244/user/pickupLogin&code='+code, function(err, httpResp, body){
+    .post('https://login.uber.com/oauth/v2/token?client_secret=yceyfAB_-wTeIj1OOyQaUE-1ZbD8LT13A3Y2okME&client_id=JFVitPjuNEKRNz3EGguzYiezSpasQLOk&grant_type=authorization_code&redirect_uri=https://52.74.30.237/user/pickupLogin&code='+code, function(err, httpResp, body){
       	if(err){
       		callback(err, null);
       	}else{
       		console.log(body);
-      		body.client_secret = 'CS0D2nvlx4_BRUry7GlrEjdP-Sh7sD7HNVP-Gr2g';
-      		body.client_id = 'XJyYPJd9aKwtIHRmnx_gEksS0VLQ1WHc';
+      		// body.client_secret = 'CS0D2nvlx4_BRUry7GlrEjdP-Sh7sD7HNVP-Gr2g';
+      		// body.client_id = 'XJyYPJd9aKwtIHRmnx_gEksS0VLQ1WHc';
       		callback(null, body);
       	}
     });
