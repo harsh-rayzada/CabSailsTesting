@@ -415,6 +415,7 @@
 						if(child) parent.removeChild(child);
 						pickupLat = position.coords.latitude;
 						pickupLong = position.coords.longitude;
+						getTimeEstimate({lat: pickupLat,lng: pickupLong}, userData.productId, userData.token);
 						if(!from || from == 'pickup'){
 							createMap(pickupLat, pickupLong);
 						}
