@@ -141,8 +141,10 @@ function movePickup(driverLocation, driver){
 		icon: 'http://www.slimmervergelijken.nl/images/icons/autoverzekering.jpg'
 	});
 	carMarker.setMap(userMap);
-	map.setCenter(carMarker.getPosition());
+	// map.setCenter(carMarker.getPosition());
 }
+
+// $('.cancel-section').click()
 
 // $('.product').click(function(e){
 // 	var rideConfirm = confirm('Do you want to book this ride?');

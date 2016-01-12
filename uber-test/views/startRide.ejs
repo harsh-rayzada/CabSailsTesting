@@ -100,7 +100,12 @@
 	<div class="overlay hide"></div>
 </div>
 <div class="searching-msg hide">
-	<span id="searchMsg">Requesting the nearest cab </span><img src="http://preloaders.net/preloaders/712/Floating%20rays.gif"/>
+	<div class="top-section">
+		<span id="searchMsg">Requesting the nearest cab </span><img src="http://preloaders.net/preloaders/712/Floating%20rays.gif"/>
+	</div>
+	<div class="cancel-section">
+		<div id="cancelButton">Cancel Ride</div>
+	</div>
 </div>
 <style>
 	.pac-container{
@@ -249,11 +254,18 @@
 	    position: absolute;
 	    top: 35%;
 	    left: 0px;
-	    padding: 10% 0%;
+	    padding: 10% 0% 5%;
 	    width: 100%;
 	    text-align: center;
 	    background: white;
 	    z-index: 99999;
+	}
+	.cancel-section{
+		border: 1px solid black;
+	    width: 25%;
+	    border-radius: 5px;
+	    margin: 20px auto 0;
+	    padding: 9px 15px;
 	}
 	.current-loc-head{
 		padding: 10px 0px 0px;

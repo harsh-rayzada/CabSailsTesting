@@ -44,6 +44,7 @@ module.exports = {
 		// 		res.negotiate(err);
 		// 	}else{
 				if(req.body.destination){
+					console.log('1');
 					var locationData = {
 						pickupLat: req.body.pickup.lat,
 						pickuplong: req.body.pickup.lng,
@@ -67,8 +68,10 @@ module.exports = {
 						}
 					});
 				}else if(req.body.pickup){
+					console.log('2');
 					that.pickupTimeEstimates(req, res);
 				}else{
+					console.log('3');
 					res.status(200).json({valid: true});
 				}
 		// 	}
@@ -93,6 +96,7 @@ module.exports = {
 			}else{
 				sails.log.debug('got time estimates');
 				if(req.priceEstimates){
+					console.log('4');
 					timeEstimates.times.sort(function(a,b){return (a.display_name>b.display_name)});
 					req.priceEstimates.prices.sort(function(a,b){return (a.display_name>b.display_name)});
 					_.each(timeEstimates.times, function(timeEstimate, index){
@@ -100,9 +104,11 @@ module.exports = {
 					});
 				}
 				if(req.body.product_id){
+					console.log('5');
 					var estimateData = _.where(timeEstimates.times,{product_id:req.body.product_id}); 
 					res.send(estimateData);
 				}else{
+					console.log('6');
 					// timeEstimates.pickupLat = pickupLocationData.lat;
 					// timeEstimates.long = pickupLocationData.long;
 					// timeEstimates.token = req.param('userToken');
@@ -142,13 +148,48 @@ module.exports = {
 					};
 
 					PickupService.requestRide(rideData, req.body.userToken, function(error, response){
+						error = JSON.parse(error);
+						response = JSON.parse(response);
 						if(error){
 							res.status(500).json(error);
 						}else if(response.error){
 							res.status(500).json(response);
 						}else{
 							response.userToken = req.body.userToken;
-							res.view('searching', {rideDetails: response});
+							var statusInterval = setInterval(function(){
+								PickupService.cabStatus(response.request_id, req.body.userToken, function(err, statusResponse){
+									err = JSON.parse(err);
+									statusResponse = JSON.parse(statusResponse);
+									if(err){
+										res.negotiate(err);
+									}else if(statusResponse.error){
+										res.negotiate(statusResponse);
+									}else{
+										if(statusResponse.status == 'accepted'){
+											clearInterval(statusInterval);
+											var msgDataReciever = {
+												mobile: req.body.recieverNum,
+												msg: 'Hi, '+req.body.userName+' has sent you an Uber('+statusResponse.vehicle.make+' '+statusResponse.vehicle.model+', '+statusResponse.vehicle.license_plate+', ETA '+ statusResponse.pickup.eta+' mins) with StayClose. Call your driver on '+driver.phone_number+' now.'
+											};
+											// var msgDataInitiator = {
+											// 	mobile: req.body.recieverNum,
+											// 	msg: 'Hi, '+req.body.userName+' has sent you an Uber('+statusResponse.vehicle.make+' '+statusResponse.vehicle.model+', '+statusResponse.vehicle.license_plate+', ETA '+ statusResponse.pickup.eta+' mins) with StayClose. Call your driver on '+driver.phone_number+' now.'
+											// };
+											// SMSService.sendSMS(msgDataInitiator, function(err, success){
+											// 	if(err){
+											// 		res.negotiate(err);
+											// 	}
+											// });
+											SMSService.sendSMS(msgDataReciever, function(err, success){
+												if(err){
+													res.negotiate(err);
+												}
+											});
+										}
+									}
+								});
+							});
+							// res.view('searching', {rideDetails: response});
 						}
 					});
 					//create a web view with re requests in the backgroud to check driver acceptance
