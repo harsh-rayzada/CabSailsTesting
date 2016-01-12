@@ -31,17 +31,22 @@ module.exports = {
 			if(err){
 				callback(err, null);
 			}else if(linkDetails){
+				linkDetails = JSON.parse(linkDetails);
 				callback(null, linkDetails)
 			}else{
 				callback('No such link', null);
 			}
 		});
-		callback(null, responseData);
+		// callback(null, responseData);
 	},
 
-	createPickupLink: function(linkData, callback){
+	createPickupLink: function(linkDetails, callback){
 		// linkdata should have shortlink and above data to be stored in stringified form
-		Links.create(linkData).exec(function(err, creationResp){
+		var linkDBDetails = {
+			shortlink: linkDetails.shortLink,
+			linkData: JSON.stringify(linkDetails)
+		};
+		Links.create(linkDBDetails).exec(function(err, creationResp){
 			if(err){
 				callback(err, null);
 			}else{

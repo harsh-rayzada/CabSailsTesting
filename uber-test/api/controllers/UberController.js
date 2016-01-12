@@ -46,12 +46,12 @@ module.exports = {
 				if(req.body.destination){
 					console.log('1');
 					var locationData = {
-						pickupLat: req.body.pickup.lat,
-						pickuplong: req.body.pickup.lng,
-						destlat: req.body.destination.lat,
-						destlong: req.body.destination.lng
+						pickupLat: req.param('pickupLat'),
+						pickuplong: req.param('pickupLng'),
+						destlat: req.param('destinationLat'),
+						destlong: req.param('destinationLng')
 					};
-					PickupService.getPriceEstimates(locationData, req.body.token, function(err, priceEstimates){
+					PickupService.getPriceEstimates(locationData, req.param('token'), function(err, priceEstimates){
 						err = JSON.parse(err);
 						priceEstimates = JSON.parse(priceEstimates);
 						if(err){
@@ -64,6 +64,10 @@ module.exports = {
 						}else{
 							sails.log.debug('got price estimates');
 							req.priceEstimates = priceEstimates;
+							req.body.pickup.lat = locationData.pickupLat;
+							req.body.pickup.lng = locationData.pickupLng;
+							req.body.token = req.param('token');
+							req.body.product_id = req.param('product_id');
 							that.pickupTimeEstimates(req, res);
 						}
 					});
@@ -112,8 +116,8 @@ module.exports = {
 					// timeEstimates.pickupLat = pickupLocationData.lat;
 					// timeEstimates.long = pickupLocationData.long;
 					// timeEstimates.token = req.param('userToken');
-					res.send(timeEstimates);
-					// res.view('product_list', {products: timeEstimates});
+					// res.send(timeEstimates);
+					res.view('product_list', {products: timeEstimates});
 				}
 			}
 		});
@@ -131,94 +135,95 @@ module.exports = {
 		// 	else
 		// 		browsr asks for loc and provide options - accept reject
 
-		if(!req.body || !req.body.userName || !req.body.userNum || !req.body.recieverName || !req.body.recieverNum || !req.body.userToken || !req.body.refreshToken || !req.body.smartFlag || !req.body.appFlag || !req.body.productId){
-			res.badRequest('Required parameters missing!');
-		}else{
-			if(req.body.smartFlag == 'false'){
-				if(!req.body.pickupLatitude || !req.body.pickupLongitude || !req.body.destLatitude || !req.body.destLongitude){
-					res.badRequest('Pickup and Destination coordinates must be present if reciever doesnt have a smartphone');
-				}else{
-					//Do everything, generate track link
-					var rideData = {
-						product_id: req.body.productId,
-						start_latitude: req.body.pickupLatitude,
-						start_longitude: req.body.pickupLongitude,
-						end_latitude: req.body.destLatitude,
-						end_longitude: req.body.destLongitude
-					};
+		// if(!req.param('userName') || !req.param('userNum') || !req.param('recieverName') || !req.param('.recieverNum') || !req.param('userToken') || !req.param('refreshToken') || !req.param('smartFlag') || !req.param('appFlag') || !req.param('productId')){
+		// 	res.badRequest('Required parameters missing!');
+		// }else{
+			// if(req.param('smartFlag') == 'false'){
+				// if(!req.param('pickupLatitude') || !req.param('pickupLongitude') || !req.param('destLatitude') || !req.param('destLongitude')){
+				// 	res.badRequest('Pickup and Destination coordinates must be present if reciever doesnt have a smartphone');
+				// }else{
+				// 	//Do everything, generate track link
+				// 	var rideData = {
+				// 		product_id: req.param('productId'),
+				// 		start_latitude: req.param('pickupLatitude'),
+				// 		start_longitude: req.param('pickupLongitude'),
+				// 		end_latitude: req.param('destLatitude'),
+				// 		end_longitude: req.param('destLongitude')
+				// 	};
 
-					PickupService.requestRide(rideData, req.body.userToken, function(error, response){
-						error = JSON.parse(error);
-						response = JSON.parse(response);
-						if(error){
-							res.status(500).json(error);
-						}else if(response.error){
-							res.status(500).json(response);
-						}else{
-							response.userToken = req.body.userToken;
-							var statusInterval = setInterval(function(){
-								PickupService.cabStatus(response.request_id, req.body.userToken, function(err, statusResponse){
-									err = JSON.parse(err);
-									statusResponse = JSON.parse(statusResponse);
-									if(err){
-										res.negotiate(err);
-									}else if(statusResponse.error){
-										res.negotiate(statusResponse);
-									}else{
-										if(statusResponse.status == 'accepted'){
-											clearInterval(statusInterval);
-											var msgDataReciever = {
-												mobile: req.body.recieverNum,
-												msg: 'Hi, '+req.body.userName+' has sent you an Uber('+statusResponse.vehicle.make+' '+statusResponse.vehicle.model+', '+statusResponse.vehicle.license_plate+', ETA '+ statusResponse.pickup.eta+' mins) with StayClose. Call your driver on '+driver.phone_number+' now.'
-											};
-											// var msgDataInitiator = {
-											// 	mobile: req.body.recieverNum,
-											// 	msg: 'Hi, '+req.body.userName+' has sent you an Uber('+statusResponse.vehicle.make+' '+statusResponse.vehicle.model+', '+statusResponse.vehicle.license_plate+', ETA '+ statusResponse.pickup.eta+' mins) with StayClose. Call your driver on '+driver.phone_number+' now.'
-											// };
-											// SMSService.sendSMS(msgDataInitiator, function(err, success){
-											// 	if(err){
-											// 		res.negotiate(err);
-											// 	}
-											// });
-											SMSService.sendSMS(msgDataReciever, function(err, success){
-												if(err){
-													res.negotiate(err);
-												}
-											});
-										}
-									}
-								});
-							});
-							// res.view('searching', {rideDetails: response});
-						}
-					});
-					//create a web view with re requests in the backgroud to check driver acceptance
-				}
-			}else if(req.body.smartFlag == 'true'){
-				if(req.body.appFlag == 'true'){
-					if(!req.body.memberUserId){
-						res.badRequest('family member id must be provided');
-					}else{
-						User.getFamilyMemberLocation(req.body.memberUserId, function(err, locationData){
-							if(err){
-								res.serverError(err);
-							}else{
-								var currentTime = Date.parse(new Date());
-								var lastSeen = Date.parse(locationData.createdAt);
-								if(currentTime - lastSeen <= 600000){
-									//To be decided
-								}
-								// Location.findOne({where: {user: user_id}, sort: 'createdAt desc'}).exec(function(err, userLocationData){
-								// 	if(err){
-								// 		callback(err, null);
-								// 	}else{
-								// 		callback(null, userLocationData);
-								// 	}
-								// });
-							}
-						});
-					}
-				}else if(req.body.appFlag == 'false'){
+				// 	PickupService.requestRide(rideData, req.param('userToken'), function(error, response){
+				// 		error = JSON.parse(error);
+				// 		response = JSON.parse(response);
+				// 		if(error){
+				// 			res.status(500).json(error);
+				// 		}else if(response.error){
+				// 			res.status(500).json(response);
+				// 		}else{
+				// 			response.userToken = req.param('userToken');
+				// 			var statusInterval = setInterval(function(){
+				// 				PickupService.cabStatus(response.request_id, req.param('userToken'), function(err, statusResponse){
+				// 					err = JSON.parse(err);
+				// 					statusResponse = JSON.parse(statusResponse);
+				// 					if(err){
+				// 						res.negotiate(err);
+				// 					}else if(statusResponse.error){
+				// 						res.negotiate(statusResponse);
+				// 					}else{
+				// 						if(statusResponse.status == 'accepted'){
+				// 							clearInterval(statusInterval);
+				// 							var msgDataReciever = {
+				// 								mobile: req.param('recieverNum'),
+				// 								msg: 'Hi, '+req.param('userName')+' has sent you an Uber('+statusResponse.vehicle.make+' '+statusResponse.vehicle.model+', '+statusResponse.vehicle.license_plate+', ETA '+ statusResponse.pickup.eta+' mins) with StayClose. Call your driver on '+driver.phone_number+' now.'
+				// 							};
+				// 							var msgDataInitiator = {
+				// 								mobile: req.param().userNum,
+				// 								msg: 'Hi, '+req.param('userName')+' has sent you an Uber('+statusResponse.vehicle.make+' '+statusResponse.vehicle.model+', '+statusResponse.vehicle.license_plate+', ETA '+ statusResponse.pickup.eta+' mins) with StayClose. Call your driver on '+driver.phone_number+' now.'
+				// 							};
+				// 							SMSService.sendSMS(msgDataInitiator, function(err, success){
+				// 								if(err){
+				// 									res.negotiate(err);
+				// 								}
+				// 							});
+				// 							SMSService.sendSMS(msgDataReciever, function(err, success){
+				// 								if(err){
+				// 									res.negotiate(err);
+				// 								}
+				// 							});
+				// 						}
+				// 					}
+				// 				});
+				// 			}, 2000);
+				// 			// res.view('searching', {rideDetails: response});
+				// 		}
+				// 	});
+				// 	//create a web view with re requests in the backgroud to check driver acceptance
+				// }
+			// }else if(req.param('smartFlag') == 'true'){
+				// if(req.param('appFlag') == 'true'){
+				// 	if(!req.param('memberUserId')){
+				// 		res.badRequest('family member id must be provided');
+				// 	}else{
+				// 		User.getFamilyMemberLocation(req.param('memberUserId'), function(err, locationData){
+				// 			if(err){
+				// 				res.serverError(err);
+				// 			}else{
+				// 				var currentTime = Date.parse(new Date());
+				// 				var lastSeen = Date.parse(locationData.createdAt);
+				// 				if(currentTime - lastSeen <= 600000){
+				// 					//To be decided
+				// 				}
+				// 				// Location.findOne({where: {user: user_id}, sort: 'createdAt desc'}).exec(function(err, userLocationData){
+				// 				// 	if(err){
+				// 				// 		callback(err, null);
+				// 				// 	}else{
+				// 				// 		callback(null, userLocationData);
+				// 				// 	}
+				// 				// });
+				// 			}
+				// 		});
+				// 	}
+				// }
+				// else if(req.param('appFlag') == 'false'){
 					var set = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ';
 				  	var shortlink = '';
 				  	for (var i = 0; i < 15; i++) {
@@ -227,35 +232,51 @@ module.exports = {
 				  	}
 
 				  	var linkData = {
-				  		link: shortlink,
-				  		token: req.body.userToken,
-				  		name: req.body.userName,
-				  		destination: req.body.destination,
-				  		destLat: req.body.destLatitude,
-				  		destLong: req.body.destLongitude,
+				  		shortLink: shortlink,
+				  		token: req.param('userToken'),
+				  		name: req.param('userName'),
+				  		destination: req.param('destination'),
+				  		destLat: req.param('destLatitude'),
+				  		destLong: req.param('destLongitude'),
 				  		linkExpiry: 900000,
-				  		productId: req.body.productId
+				  		productId: req.param('productId'),
+				  		recieverNum: req.param('recieverNum'),
+				  		recieverName: req.param('recieverName'),
+				  		initiatorImg: 'https://media.licdn.com/mpr/mpr/shrinknp_200_200/p/2/000/000/374/0b15819.jpg',
+				  		initiatorNum: req.param('userNum')
 				  	};
+
 				  	Links.createPickupLink(linkData, function(err, linkCreationResponse){
 				  		if(err){
 				  			res.serverError(err);
 				  		}else{
-				  			var msg1 = req.body.userName+" would like to book a cab for you. Click on the link to continue: "+baseUrl+shortlink;
-				  			var msg2 = "You have requested to book the cab for "+req.body.recieverName+". Here is the link: "+baseUrl+shortlink;
-				  			link: linkCreationResponse.shortlink
-				  	// 		SMSService.send({to:req.body.recieverNum, message: msg1}, function(err, msgResponse){
+				  			// var msg1 = req.param('userName')+" would like to book a cab for you. Click on the link to continue: "+baseUrl+shortlink;
+				  			// var msg2 = "You have requested to book the cab for "+req.param('recieverName')+". Here is the link: "+baseUrl+shortlink;
+				  			
+				  			var msgDataReciever = {
+								mobile: req.param('recieverNum'),
+								msg: 'Hi, '+req.param('userName')+' has sent you an Uber with StayClose. Click here to accept https://52.74.30.237/booking/'+shortlink
+							};
+
+							SMSService.sendSMS(msgDataReciever, function(err, success){
+								if(err){
+									res.negotiate(err);
+								}
+							});
+							res.view('booking-confirm',{status:200});
+				  	// 		SMSService.send({to:req.param().recieverNum, message: msg1}, function(err, msgResponse){
 							// 	if(err)
 							// 		res.serverError(err);
 							// });
-							// SMSService.send({to:req.body.userNum, message: msg2}, function(err, msgResponse){
+							// SMSService.send({to:req.param().userNum, message: msg2}, function(err, msgResponse){
 							// 	if(err)
 							// 		res.serverError(err);
 							// });
 				  		}
 				  	});
-				}
-			}
-		}
+				// }
+			// }
+		// }
 	},
 
 	getRideDetails: function(req, res){
