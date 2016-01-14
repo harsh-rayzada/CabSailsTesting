@@ -31,6 +31,7 @@ exports.requestRide = function(rideData, userCabToken, callback){
 };
 
 exports.getTimeEstimates = function(locationData, userCabToken, callback){
+	console.log('in service - cabtoken', userCabToken);
 	request
 	.get({
 		url:'https://sandbox-api.uber.com/v1/estimates/time?start_latitude='+locationData.lat+'&start_longitude='+locationData.long,
