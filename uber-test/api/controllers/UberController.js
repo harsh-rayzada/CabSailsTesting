@@ -4,6 +4,7 @@
  * @description :: Server-side logic for managing Ubers
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
+ //Change error codes appropriately (like 422 when invalid request is sent)
 module.exports = {
 	loginPickup: function(req, res){
 	    if(req.param('code')){
@@ -239,11 +240,11 @@ module.exports = {
 				  		destLat: req.param('destLatitude'),
 				  		destLong: req.param('destLongitude'),
 				  		linkExpiry: 900000,
-				  		// productId: req.param('productId'),
-				  		product_id: '21a78c24-b378-4147-828c-660ecb3fa19c',
+				  		productId: req.param('productId'),
+				  		// product_id: '21a78c24-b378-4147-828c-660ecb3fa19c',
 				  		recieverNum: req.param('recieverNum'),
 				  		recieverName: req.param('recieverName'),
-				  		initiatorImg: 'https://media.licdn.com/mpr/mpr/shrinknp_200_200/p/2/000/000/374/0b15819.jpg',
+				  		initiatorImg: 'https://d1qb2nb5cznatu.cloudfront.net/users/888502-medium_jpg?1417416611',
 				  		initiatorNum: req.param('userNum')
 				  	};
 
