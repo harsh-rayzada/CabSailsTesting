@@ -109,8 +109,10 @@ module.exports = {
 					});
 				}
 				if(req.body.product_id){
+					console.log('req body', req.body);
 					console.log('5');
 					var estimateData = _.where(timeEstimates.times,{product_id:req.body.product_id}); 
+					console.log('estimateData',estimateData);
 					res.send(estimateData);
 				}else{
 					console.log('6');
@@ -241,7 +243,6 @@ module.exports = {
 				  		destLong: req.param('destLongitude'),
 				  		linkExpiry: 900000,
 				  		productId: req.param('productId'),
-				  		// product_id: '21a78c24-b378-4147-828c-660ecb3fa19c',
 				  		recieverNum: req.param('recieverNum'),
 				  		recieverName: req.param('recieverName'),
 				  		initiatorImg: 'https://d1qb2nb5cznatu.cloudfront.net/users/888502-medium_jpg?1417416611',
