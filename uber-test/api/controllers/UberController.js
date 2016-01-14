@@ -89,7 +89,7 @@ module.exports = {
 			lat: req.body.pickup.lat,
 			long: req.body.pickup.lng
 		};
-		PickupService.getTimeEstimates(pickupLocationData, req.body.token, function(err, timeEstimates){
+		PickupService.getTimeEstimates(pickupLocationData, req.body.userToken, function(err, timeEstimates){
 			err = JSON.parse(err);
 			timeEstimates = JSON.parse(timeEstimates);
 			if(err){
