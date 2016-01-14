@@ -111,6 +111,7 @@ module.exports = {
 				if(req.body.product_id){
 					console.log('req body', req.body);
 					console.log('5');
+					console.log('timeEstimates',timeEstimates);
 					var estimateData = _.where(timeEstimates.times,{product_id:req.body.product_id}); 
 					console.log('estimateData',estimateData);
 					res.send(estimateData);
